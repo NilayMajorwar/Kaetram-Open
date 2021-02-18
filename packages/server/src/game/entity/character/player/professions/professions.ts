@@ -10,7 +10,7 @@ class Professions {
     player: Player;
     world: World;
 
-    professions: any;
+    professions: { [key: number]: Profession };
 
     constructor(player: Player) {
         this.player = player;
@@ -21,8 +21,8 @@ class Professions {
         this.load();
     }
 
-    load() {
-        let pList = Object.keys(Modules.Professions); // professions enum list
+    load(): void {
+        const pList = Object.keys(Modules.Professions); // professions enum list
 
         /**
          * We are accessing all the professions in the Modules.Professions
@@ -31,38 +31,36 @@ class Professions {
 
         _.each(pList, (profession) => {
             try {
-                let ProfessionClass = professions[profession.toLowerCase()],
-                    id = Modules.Professions[profession];
+                const ProfessionClass = professions[profession.toLowerCase()];
+                const id = Modules.Professions[profession];
 
                 this.professions[id] = new ProfessionClass(id, this.player);
-            } catch (e) {
+            } catch (error) {
                 log.debug(`Could not load ${profession} profession.`);
-                log.error(e);
+                log.error(error);
             }
         });
     }
 
-    update(info: any) {
+    update(info: any): void {
         _.each(info, (data, id) => {
             if (!(id in this.professions)) return;
-
             this.professions[id].load(data);
         });
     }
 
-    getProfession(id: number) {
+    getProfession(id: number): Profession {
         if (!(id in this.professions)) return null;
-
         return this.professions[id];
     }
 
-    stopAll() {
+    stopAll(): void {
         this.forEachProfession((profession: Profession) => {
             profession.stop();
         });
     }
 
-    forEachProfession(callback: Function) {
+    forEachProfession(callback: (profession: Profession) => void): void {
         _.each(this.professions, (profession) => {
             callback(profession);
         });
@@ -74,30 +72,24 @@ class Professions {
      */
 
     getInfo() {
-        let data = [];
-
-        _.each(this.professions, (profession: Profession) => {
-            data.push({
-                id: profession.id,
-                name: profession.name,
-                level: profession.level,
-                percentage: profession.getPercentage()
-            });
-        });
-
-        return data;
+        return Object.values(this.professions).map((profession) => ({
+            id: profession.id,
+            name: profession.name,
+            level: profession.level,
+            percentage: profession.getPercentage(),
+        }));
     }
 
     getArray() {
-        let data = {};
+        const data = {};
 
-        _.each(this.professions, (profession: Profession) => {
+        _.each(this.professions, (profession) => {
             data[profession.id] = profession.getData();
         });
 
         return {
             username: this.player.username,
-            data: data
+            data: data,
         };
     }
 }

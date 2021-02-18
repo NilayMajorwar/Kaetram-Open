@@ -4,20 +4,16 @@ import log from '../util/log';
 
 class Minigames {
     public world: World;
-
     public minigames: any;
 
     constructor(world: World) {
         this.world = world;
-
         this.minigames = {};
-
         this.load();
     }
 
-    load() {
+    load(): void {
         this.minigames['TeamWar'] = new TeamWar(this.world);
-
         log.info(`Finished loading ${Object.keys(this.minigames).length} minigames.`);
     }
 

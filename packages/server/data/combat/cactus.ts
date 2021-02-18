@@ -14,16 +14,22 @@ class Cactus extends Combat {
 
         this.character = character;
 
-        this.character.onDamaged((damage: any, attacker: Player) => {
-            if (!attacker || !attacker.armour || attacker.isRanged()) return;
+        this.character.onDamaged((damage: number, attacker?: Character) => {
+            if (
+                !attacker ||
+                !(attacker instanceof Player) ||
+                !attacker.armour ||
+                attacker.isRanged()
+            )
+                return;
 
             this.damageAttacker(damage, attacker);
-
             log.debug(`Entity ${this.character.id} damaged ${damage} by ${attacker.instance}.`);
         });
 
         this.character.onDeath(() => {
-            this.forEachAttacker((attacker: Player) => {
+            this.forEachAttacker((attacker: Character) => {
+                if (!(attacker instanceof Player)) return;
                 this.damageAttacker(this.character.maxHitPoints, attacker);
             });
 
@@ -31,7 +37,7 @@ class Cactus extends Combat {
         });
     }
 
-    damageAttacker(damage: number, attacker: Player) {
+    damageAttacker(damage: number, attacker: Player): void {
         if (!attacker || !attacker.armour || attacker.isRanged()) return;
 
         /**
@@ -40,13 +46,11 @@ class Cactus extends Combat {
          * as the armour gets better.
          **/
 
-        const defense = attacker.armour.getDefense(),
-            calculatedDamage = Math.floor(damage / 2 - defense * 5);
-
+        const defense = attacker.armour.getDefense();
+        const calculatedDamage = Math.floor(damage / 2 - defense * 5);
         if (calculatedDamage < 1) return;
 
         const hitInfo = new Hit(Modules.Hits.Damage, calculatedDamage).getData();
-
         this.hit(this.character, attacker, hitInfo, true);
     }
 }

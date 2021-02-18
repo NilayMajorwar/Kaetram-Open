@@ -1,5 +1,3 @@
-/* global module */
-
 /**
  * Class used for storing hardcoded values and actions for a specific area
  * in the game.
@@ -13,7 +11,6 @@ class Home {
     private region: Region;
     private map: Map;
 
-
     private startRegion: string;
     private endRegion: string;
 
@@ -25,14 +22,15 @@ class Home {
         this.endRegion = '4-10';
     }
 
-    get() {
-        let startPosition = this.region.getRegionBounds(this.startRegion),
-            endPosition = this.region.getRegionBounds(this.endRegion),
-            info = {
-                indexes: [],
-                data: [],
-                collisions: []
-            };
+    // TODO: Looks incomplete.
+    get(): void {
+        const startPosition = this.region.getRegionBounds(this.startRegion);
+        const endPosition = this.region.getRegionBounds(this.endRegion);
+        const info = {
+            indexes: [],
+            data: [],
+            collisions: [],
+        };
 
         /**
          * Clones the region we're starting off with. After which we'll be hard-coding data into it.
@@ -40,7 +38,7 @@ class Home {
 
         for (let y = startPosition.startY; y < endPosition.endY; y++) {
             for (let x = startPosition.startX; x < endPosition.endX; x++) {
-                let tileIndex = this.region.gridPositionToIndex(x, y);
+                const tileIndex = this.region.gridPositionToIndex(x, y);
 
                 info.indexes.push(tileIndex);
                 info.data.push(this.map.data[tileIndex]);

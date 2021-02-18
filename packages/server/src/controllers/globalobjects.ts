@@ -14,22 +14,18 @@ class GlobalObjects {
     }
 
     getInfo(id: string) {
-        let position = Objects.getPosition(id),
-            objectId = this.map.getPositionObject(position.x, position.y);
+        const position = Objects.getPosition(id);
+        const objectId = this.map.getPositionObject(position.x, position.y);
 
         if (objectId in this.map.trees)
             return {
                 type: 'lumberjacking',
-                tree: this.map.trees[objectId]
+                tree: this.map.trees[objectId],
             };
 
-        let object = Objects.getObject(id);
-
+        const object = Objects.getObject(id);
         if (!object) return null;
-
-        return {
-            type: object.type
-        };
+        return { type: object.type };
     }
 
     /**
@@ -38,21 +34,19 @@ class GlobalObjects {
      */
 
     getSignData(id: string) {
-        let object = Objects.getObject(id);
-
+        const object = Objects.getObject(id);
         if (!object) return null;
-
-        let position = Objects.getPosition(id);
-
         object.id = id;
+
+        const position = Objects.getPosition(id);
 
         return {
             object: object,
             info: {
                 id: id,
                 x: position.x * 16,
-                y: position.y * 16 + 8 // offset for the chat bubble
-            }
+                y: position.y * 16 + 8, // offset for the chat bubble
+            },
         };
     }
 
@@ -60,7 +54,7 @@ class GlobalObjects {
      * Ripped from `npc.js` but with some minor adjustments.
      */
 
-    talk(object: any, player: Player) {
+    talk(object: any, player: Player): string {
         if (player.npcTalk !== object.id) {
             player.npcTalk = object.id;
             player.talkIndex = 0;

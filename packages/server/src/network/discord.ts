@@ -38,8 +38,8 @@ class Discord {
 
             if (message.channel.id !== config.discordServerId) return;
 
-            let source = `[Discord | ${message.author.username}]`,
-                text = Utils.parseMessage('@goldenrod@' + message.content);
+            const source = `[Discord | ${message.author.username}]`;
+            const text = Utils.parseMessage('@goldenrod@' + message.content);
 
             this.world.globalMessage(source, text, 'tomato');
         });
@@ -50,12 +50,9 @@ class Discord {
     /**
      * Sends a message to the Discord server using the webhook.
      */
-
-    sendWebhook(source: any, message: any, withArrow?: any) {
+    sendWebhook(source: string, message: string, withArrow?: boolean): void {
         if (!config.discordEnabled) return;
-
-        let formattedSource = Utils.formatUsername(source);
-
+        const formattedSource = Utils.formatUsername(source);
         this.webhook.send(`**[Kaetram]** ${formattedSource}${withArrow ? ' »' : ''} ${message}`);
     }
 }

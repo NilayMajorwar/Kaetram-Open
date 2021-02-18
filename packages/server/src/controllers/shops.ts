@@ -7,11 +7,19 @@ import Player from '../game/entity/character/player/player';
 import World from '../game/world';
 import log from '../util/log';
 
+export type ShopInfo = {
+    id: number;
+    strings: string[];
+    names: string[];
+    counts: number[];
+    prices: number[];
+};
+
 class Shops {
     world: World;
 
     interval: number;
-    shopInterval: any;
+    shopInterval: NodeJS.Timeout;
 
     constructor(world: World) {
         this.world = world;
@@ -22,9 +30,9 @@ class Shops {
         this.load();
     }
 
-    load() {
+    load(): void {
         this.shopInterval = setInterval(() => {
-            _.each(ShopData.Data, (info: any) => {
+            Object.values(ShopData.Data).forEach((info: any) => {
                 for (let i = 0; i < info.count; i++)
                     if (info.count[i] < info.originalCount[i])
                         ShopData.increment(info.id, info.items[i], 1);
@@ -32,27 +40,28 @@ class Shops {
         }, this.interval);
     }
 
-    open(player: Player, npcId: number) {
+    open(player: Player, npcId: number): void {
         player.send(
             new Messages.Shop(Packets.ShopOpcode.Open, {
                 instance: player.instance,
                 npcId: npcId,
-                shopData: this.getShopData(npcId)
-            })
+                shopData: this.getShopData(npcId),
+            }),
         );
     }
 
-    buy(player: Player, npcId: number, buyId: number, count: number) {
-        let cost = ShopData.getCost(npcId, buyId, count),
-            currency = this.getCurrency(npcId),
-            stock = ShopData.getStock(npcId, buyId);
+    buy(player: Player, npcId: number, buyId: number, count: number): void {
+        const cost = ShopData.getCost(npcId, buyId, count);
+        const currency = this.getCurrency(npcId);
+        const stock = ShopData.getStock(npcId, buyId);
 
         if (!cost || !currency || !stock) {
             log.info('Invalid shop data.');
             return;
         }
 
-        //TODO: Make it so that when you have the exact coin count, it removes coins and replaces it with the item purchased.
+        //TODO: Make it so that when you have the exact coin count,
+        // it removes coins and replaces it with the item purchased.
 
         if (stock === 0) {
             player.notify('This item is currently out of stock.');
@@ -76,95 +85,89 @@ class Shops {
             id: ShopData.getItem(npcId, buyId),
             count: count,
             ability: -1,
-            abilityLevel: -1
+            abilityLevel: -1,
         });
 
         ShopData.decrement(npcId, buyId, count);
-
         this.refresh(npcId);
     }
 
-    sell(player: Player, npcId: number, slotId: number) {
-        let item = player.inventory.slots[slotId],
-            shop = ShopData.Ids[npcId];
+    sell(player: Player, npcId: number, slotId: number): void {
+        const item = player.inventory.slots[slotId];
+        const shop = ShopData.Ids[npcId];
 
         if (!shop || !item) {
             log.info('Invalid shop data.');
             return;
         }
 
-        if (shop.items.indexOf(item.id) < 0) {
+        if (!shop.items.includes(item.id)) {
             player.notify('That item cannot be sold in this store.');
             return;
         }
 
-        let currency = this.getCurrency(npcId),
-            price = this.getSellPrice(npcId, item.id, item.count);
+        const currency = this.getCurrency(npcId);
+        const price = this.getSellPrice(npcId, item.id, item.count);
 
         ShopData.increment(npcId, item.id, item.count);
 
         player.inventory.remove(item.id, item.count, item.index);
         player.inventory.add({
             id: currency,
-            count: price
+            count: price,
         });
 
         this.remove(player);
         this.refresh(npcId);
     }
 
-    remove(player: Player) {
-        let selectedItem = player.selectedShopItem;
-
+    remove(player: Player): void {
+        const selectedItem = player.selectedShopItem;
         if (!selectedItem) return;
 
         player.send(
             new Messages.Shop(Packets.ShopOpcode.Remove, {
                 id: selectedItem.id,
-                index: selectedItem.index
-            })
+                index: selectedItem.index,
+            }),
         );
 
         player.selectedShopItem = null;
     }
 
-    refresh(shop: any) {
+    refresh(shop: number): void {
         this.world.push(Packets.PushOpcode.Broadcast, {
-            message: new Messages.Shop(Packets.ShopOpcode.Refresh, this.getShopData(shop))
+            message: new Messages.Shop(Packets.ShopOpcode.Refresh, this.getShopData(shop)),
         });
     }
 
     getCurrency(npcId: number) {
-        let shop = ShopData.Ids[npcId];
-
+        const shop = ShopData.Ids[npcId];
         if (!shop) return null;
-
         return shop.currency;
     }
 
-    getSellPrice(npcId: number, itemId: number, count = 1) {
-        let shop = ShopData.Ids[npcId];
-
+    getSellPrice(npcId: number, itemId: number, count = 1): number {
+        const shop = ShopData.Ids[npcId];
         if (!shop) return 1;
 
-        let buyId = shop.items.indexOf(itemId);
-
+        const buyId = shop.items.indexOf(itemId);
         if (buyId < 0) return 1;
 
         return Math.floor(ShopData.getCost(npcId, buyId, count) / 2);
     }
 
-    getShopData(npcId: number) {
-        let shop = ShopData.Ids[npcId];
+    getShopData(npcId: number): ShopInfo {
+        const shop = ShopData.Ids[npcId];
 
         if (!shop || !_.isArray(shop.items)) return;
 
-        let strings = [],
-            names = [];
+        const strings = [];
+        const names = [];
 
-        for (let i = 0; i < shop.items.length; i++) {
-            strings.push(Items.idToString(shop.items[i]));
-            names.push(Items.idToName(shop.items[i]));
+        for (const id in shop.items) {
+            strings.push(Items.idToString(shop.items[id]));
+            names.push(Items.idToName(shop.items[id]));
         }
 
         return {
@@ -172,7 +175,7 @@ class Shops {
             strings: strings,
             names: names,
             counts: shop.count,
-            prices: shop.prices
+            prices: shop.prices,
         };
     }
 }

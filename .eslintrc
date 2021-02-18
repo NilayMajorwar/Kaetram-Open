@@ -10,8 +10,6 @@
         "eslint:recommended",
         "plugin:@typescript-eslint/eslint-recommended",
         "plugin:@typescript-eslint/recommended",
-        "prettier",
-        "plugin:prettier/recommended",
         "plugin:unicorn/recommended"
     ],
     "parser": "@typescript-eslint/parser",
@@ -20,8 +18,6 @@
         "sourceType": "module"
     },
     "rules": {
-        "curly": ["warn", "multi"],
-
         "no-fallthrough": "off",
         "prettier/prettier": "warn",
 
@@ -30,6 +26,10 @@
         "unicorn/prevent-abbreviations": "off",
         "unicorn/consistent-function-scoping": "off",
         "unicorn/no-nested-ternary": "off",
+        "unicorn/no-array-for-each": "off",
+
+        "@typescript-eslint/ban-ts-comment": "off",
+        "@typescript-eslint/no-empty-function": "off",
 
         "indent": [
             "error",

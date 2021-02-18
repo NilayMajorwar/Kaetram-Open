@@ -6,7 +6,7 @@ class Database {
     database: any;
     databaseType: string;
 
-    constructor(databaseType) {
+    constructor(databaseType: string) {
         this.database = null;
         this.databaseType = databaseType;
 
@@ -18,7 +18,7 @@ class Database {
                     config.mongodbPort,
                     config.mongodbUser,
                     config.mongodbPassword,
-                    config.mongodbDatabase
+                    config.mongodbDatabase,
                 );
                 break;
 
@@ -31,7 +31,7 @@ class Database {
     getDatabase(): any {
         if (!this.database)
             log.error(
-                '[Database] No database is currently present. It is advised against proceeding in this state.'
+                '[Database] No database is currently present. It is advised against proceeding in this state.',
             );
 
         return this.database;

@@ -1,4 +1,11 @@
-/* global module */
+export type HitData = {
+    type: any;
+    damage: number;
+    isRanged: boolean;
+    isAoE: boolean;
+    hasTerror: boolean;
+    isPoison: boolean;
+};
 
 class Hit {
     type: any;
@@ -19,30 +26,30 @@ class Hit {
         this.poison = false;
     }
 
-    isRanged() {
+    isRanged(): boolean {
         return this.ranged;
     }
 
-    isAoE() {
+    isAoE(): boolean {
         return this.aoe;
     }
 
-    isPoison() {
+    isPoison(): boolean {
         return this.poison;
     }
 
-    getDamage() {
+    getDamage(): number {
         return this.damage;
     }
 
-    getData() {
+    getData(): HitData {
         return {
             type: this.type,
             damage: this.damage,
             isRanged: this.isRanged(),
             isAoE: this.isAoE(),
             hasTerror: this.terror,
-            isPoison: this.poison
+            isPoison: this.poison,
         };
     }
 }

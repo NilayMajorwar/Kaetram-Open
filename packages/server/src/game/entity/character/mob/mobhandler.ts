@@ -14,7 +14,7 @@ class MobHandler {
     world: World;
     map: Map;
 
-    roamingInterval: any;
+    roamingInterval: NodeJS.Timeout | null;
     spawnLocation: any;
     maxRoamingDistance: number;
 
@@ -32,24 +32,24 @@ class MobHandler {
         this.loadCallbacks();
     }
 
-    load() {
+    load(): void {
         if (!this.mob.roaming) return;
 
         this.roamingInterval = setInterval(() => {
             if (!this.mob.dead) {
                 // Calculate a random position near the mobs spawn location.
-                let newX =
-                        this.spawnLocation[0] +
-                        Utils.randomInt(-this.maxRoamingDistance, this.maxRoamingDistance),
-                    newY =
-                        this.spawnLocation[1] +
-                        Utils.randomInt(-this.maxRoamingDistance, this.maxRoamingDistance),
-                    distance = Utils.getDistance(
-                        this.spawnLocation[0],
-                        this.spawnLocation[1],
-                        newX,
-                        newY
-                    );
+                const newX =
+                    this.spawnLocation[0] +
+                    Utils.randomInt(-this.maxRoamingDistance, this.maxRoamingDistance);
+                const newY =
+                    this.spawnLocation[1] +
+                    Utils.randomInt(-this.maxRoamingDistance, this.maxRoamingDistance);
+                const distance = Utils.getDistance(
+                    this.spawnLocation[0],
+                    this.spawnLocation[1],
+                    newX,
+                    newY,
+                );
 
                 // Return if the tile is colliding.
                 if (this.map.isColliding(newX, newY)) return;
@@ -88,14 +88,14 @@ class MobHandler {
                     message: new Messages.Movement(Packets.MovementOpcode.Move, {
                         id: this.mob.instance,
                         x: newX,
-                        y: newY
-                    })
+                        y: newY,
+                    }),
                 });
             }
         }, 5000);
     }
 
-    loadCallbacks() {
+    loadCallbacks(): void {
         // Combat plugin has its own set of callbacks.
         if (Mobs.hasCombatPlugin(this.mob.id)) return;
 
@@ -105,16 +105,15 @@ class MobHandler {
 
         this.mob.onDeath(() => {
             if (!this.mob.miniboss || !this.combat) return;
-
             this.combat.forEachAttacker((attacker: Character) => {
                 if (attacker) attacker.finishAchievement(this.mob.achievementId);
             });
         });
 
-        //TODO - Implement posion on Mobs
+        // TODO: Implement posion on Mobs
     }
 
-    forceTalk(message: string) {
+    forceTalk(message: string): void {
         if (!this.world) return;
 
         this.world.push(Packets.PushOpcode.Regions, {
@@ -122,8 +121,8 @@ class MobHandler {
             message: new Messages.NPC(Packets.NPCOpcode.Talk, {
                 id: this.mob.instance,
                 text: message,
-                nonNPC: true
-            })
+                nonNPC: true,
+            }),
         });
     }
 }

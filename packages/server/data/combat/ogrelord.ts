@@ -9,174 +9,145 @@ import Utils from '../../src/util/utils';
 
 class OgreLord extends Combat {
     dialogues: Array<string>;
-    minions: Array<any>;
+    minions: Array<Mob>;
     lastSpawn: number;
     loaded: boolean;
 
-    talkingInterval: any;
-    updateInterval: any;
+    talkingInterval: NodeJS.Timeout;
+    updateInterval: NodeJS.Timeout;
 
     constructor(character: Mob) {
         super(character);
 
-        const self = this;
+        this.character = character;
+        this.minions = [];
+        this.lastSpawn = 0;
+        this.loaded = false;
 
-        self.character = character;
-
-        self.dialogues = [
+        this.dialogues = [
             'Get outta my swamp',
             'No, not the onion.',
-            'My minions give me strength! You stand no chance!'
+            'My minions give me strength! You stand no chance!',
         ];
-
-        self.minions = [];
-
-        self.lastSpawn = 0;
-
-        self.loaded = false;
 
         character.projectile = Modules.Projectiles.Boulder;
         character.projectileName = 'projectile-boulder';
 
         character.onDeath(() => {
-            self.reset();
+            this.reset();
         });
     }
 
-    load() {
-        const self = this;
-
-        self.talkingInterval = setInterval(() => {
-            if (self.character.hasTarget()) self.forceTalk(self.getMessage());
+    load(): void {
+        this.talkingInterval = setInterval(() => {
+            if (this.character.hasTarget()) this.forceTalk(this.getMessage());
         }, 9000);
 
-        self.updateInterval = setInterval(() => {
-            self.character.armourLevel = 50 + self.minions.length * 15;
+        this.updateInterval = setInterval(() => {
+            this.character.armourLevel = 50 + this.minions.length * 15;
         }, 2000);
 
-        self.loaded = true;
+        this.loaded = true;
     }
 
-    hit(character: Character, target: Character, hitInfo: any) {
-        const self = this;
+    hit(character: Character, target: Character, hitInfo: any): void {
+        if (this.isAttacked()) this.beginMinionAttack();
 
-        if (self.isAttacked()) self.beginMinionAttack();
-
-        if (!character.isNonDiagonal(target)) {
-            const distance = character.getDistance(target);
-
-            if (distance < 7) {
-                hitInfo.isRanged = true;
-                character.attackRange = 7;
-            }
+        if (!character.isNonDiagonal(target) && character.getDistance(target) < 7) {
+            hitInfo.isRanged = true;
+            character.attackRange = 7;
         }
 
-        if (self.canSpawn()) self.spawnMinions();
-
+        if (this.canSpawn()) this.spawnMinions();
         super.hit(character, target, hitInfo);
     }
 
-    forceTalk(message: string) {
-        const self = this;
+    forceTalk(message: string): void {
+        if (!this.world) return;
 
-        if (!self.world) return;
-
-        self.world.push(Packets.PushOpcode.Regions, {
-            regionId: self.character.region,
+        this.world.push(Packets.PushOpcode.Regions, {
+            regionId: this.character.region,
             message: new Messages.NPC(Packets.NPCOpcode.Talk, {
-                id: self.character.instance,
+                id: this.character.instance,
                 text: message,
-                nonNPC: true
-            })
+                nonNPC: true,
+            }),
         });
     }
 
-    getMessage() {
+    getMessage(): string {
         return this.dialogues[Utils.randomInt(0, this.dialogues.length - 1)];
     }
 
-    spawnMinions() {
-        const self = this,
-            xs = [414, 430, 415, 420, 429],
-            ys = [172, 173, 183, 185, 180];
+    spawnMinions(): void {
+        const xs = [414, 430, 415, 420, 429];
+        const ys = [172, 173, 183, 185, 180];
 
-        self.lastSpawn = new Date().getTime();
+        this.lastSpawn = Date.now();
 
-        self.forceTalk('Now you shall see my true power!');
+        this.forceTalk('Now you shall see my true power!');
 
         for (let i = 0; i < xs.length; i++)
-            self.minions.push(self.world.spawnMob(12, xs[i], ys[i]));
+            this.minions.push(this.world.spawnMob(12, xs[i], ys[i]));
 
-        _.each(self.minions, (minion: Mob) => {
+        _.each(this.minions, (minion: Mob) => {
             minion.onDeath(() => {
-                if (self.isLast()) self.lastSpawn = new Date().getTime();
-
-                self.minions.splice(self.minions.indexOf(minion), 1);
+                if (this.isLast()) this.lastSpawn = Date.now();
+                this.minions.splice(this.minions.indexOf(minion), 1);
             });
 
-            if (self.isAttacked()) self.beginMinionAttack();
+            if (this.isAttacked()) this.beginMinionAttack();
         });
 
-        if (!self.loaded) self.load();
+        if (!this.loaded) this.load();
     }
 
-    beginMinionAttack() {
-        const self = this;
+    beginMinionAttack(): void {
+        if (!this.hasMinions()) return;
 
-        if (!self.hasMinions()) return;
-
-        _.each(self.minions, (minion: Mob) => {
-            const randomTarget = self.getRandomTarget();
-
+        _.each(this.minions, (minion: Mob) => {
+            const randomTarget = this.getRandomTarget();
             if (!minion.hasTarget() && randomTarget) minion.combat.begin(randomTarget);
         });
     }
 
-    reset() {
-        const self = this;
+    reset(): void {
+        this.lastSpawn = 0;
 
-        self.lastSpawn = 0;
+        // TODO: Can clean below code a bit?
+        const listCopy = this.minions.slice();
+        for (let i = 0; i < listCopy.length; i++) this.world.kill(listCopy[i]);
 
-        const listCopy = self.minions.slice();
+        clearInterval(this.talkingInterval);
+        clearInterval(this.updateInterval);
 
-        for (let i = 0; i < listCopy.length; i++) self.world.kill(listCopy[i]);
+        this.talkingInterval = null;
+        this.updateInterval = null;
 
-        clearInterval(self.talkingInterval);
-        clearInterval(self.updateInterval);
-
-        self.talkingInterval = null;
-        self.updateInterval = null;
-
-        self.loaded = false;
+        this.loaded = false;
     }
 
     getRandomTarget() {
-        const self = this;
-
-        if (self.isAttacked()) {
-            const keys = Object.keys(self.attackers),
-                randomAttacker = self.attackers[keys[Utils.randomInt(0, keys.length)]];
-
+        if (this.isAttacked()) {
+            const keys = Object.keys(this.attackers);
+            const randomAttacker = this.attackers[keys[Utils.randomInt(0, keys.length)]];
             if (randomAttacker) return randomAttacker;
         }
 
-        if (self.character.hasTarget()) return self.character.target;
-
+        if (this.character.hasTarget()) return this.character.target;
         return null;
     }
 
-    hasMinions() {
+    hasMinions(): boolean {
         return this.minions.length > 0;
     }
 
-    isLast() {
+    isLast(): boolean {
         return this.minions.length === 1;
     }
 
-    canSpawn() {
-        return (
-            new Date().getTime() - this.lastSpawn > 50000 && !this.hasMinions() && this.isAttacked()
-        );
+    canSpawn(): boolean {
+        return Date.now() - this.lastSpawn > 50000 && !this.hasMinions() && this.isAttacked();
     }
 }
 

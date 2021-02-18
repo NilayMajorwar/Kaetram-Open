@@ -28,39 +28,34 @@ class Enchant {
         this.selectedShards = null;
     }
 
-    add(type, item) {
-        let isItem = item === 'item';
-
+    add(type, item): void {
+        const isItem = item === 'item';
         if (isItem && !Items.isEnchantable(item.id)) return;
 
         if (type === 'item') {
             if (this.selectedItem) this.remove('item');
-
             this.selectedItem = item;
         } else if (type === 'shards') {
             if (this.selectedShards) this.remove('shards');
-
             this.selectedShards = item;
         }
 
         this.player.send(
             new Messages.Enchant(Packets.EnchantOpcode.Select, {
                 type: type,
-                index: item.index
-            })
+                index: item.index,
+            }),
         );
     }
 
-    remove(type) {
+    remove(type): void {
         let index = -1;
 
         if (type === 'item' && this.selectedItem) {
             index = this.selectedItem.index;
-
             this.selectedItem = null;
         } else if (type === 'shards' && this.selectedShards) {
             index = this.selectedShards.index;
-
             this.selectedShards = null;
         }
 
@@ -69,16 +64,14 @@ class Enchant {
         this.player.send(
             new Messages.Enchant(Packets.EnchantOpcode.Remove, {
                 type: type,
-                index: index
-            })
+                index: index,
+            }),
         );
     }
 
-    convert(shard) {
+    convert(shard): void {
         if (!Items.isShard(shard.id) || !this.player.inventory.hasSpace()) return;
-
-        let tier = Items.getShardTier(shard.id);
-
+        const tier = Items.getShardTier(shard.id);
         if (shard.count < 11 && tier > 5) return;
 
         for (let i = 0; i < shard.count; i += 10) {
@@ -88,12 +81,12 @@ class Enchant {
                 id: shard.id + 1,
                 count: 1,
                 ability: -1,
-                abilityLevel: -1
+                abilityLevel: -1,
             });
         }
     }
 
-    enchant() {
+    enchant(): void {
         if (!this.selectedItem) {
             this.player.notify('You have not selected an item to enchant.');
             return;
@@ -119,7 +112,7 @@ class Enchant {
          * and reason them out.
          */
 
-        let tier = Items.getShardTier(this.selectedShards.id);
+        const tier = Items.getShardTier(this.selectedShards.id);
 
         if (tier < 1) return;
 
@@ -139,9 +132,9 @@ class Enchant {
         this.player.sync();
     }
 
-    generateAbility(tier) {
-        let type = Items.getType(this.selectedItem.id),
-            probability = Utils.randomInt(0, 100);
+    generateAbility(tier): void {
+        const type = Items.getType(this.selectedItem.id);
+        const probability = Utils.randomInt(0, 100);
 
         if (probability > 20 + 5 * tier) {
             this.player.notify('The item has failed to enchant.');
@@ -149,18 +142,16 @@ class Enchant {
         }
 
         log.info(
-            `Selected item ability info: ${this.selectedItem.ability} + ${this.selectedItem.abilityLevel}.`
+            `Selected item ability info: ${this.selectedItem.ability} + ${this.selectedItem.abilityLevel}.`,
         );
 
         if (this.hasAbility(this.selectedItem)) {
-            let abilityName = Object.keys(Modules.Enchantment)[this.selectedItem.ability];
+            const abilityName = Object.keys(Modules.Enchantment)[this.selectedItem.ability];
 
             this.selectedItem.abilityLevel = tier;
-
             this.player.notify(
-                `Your item has been imbued with level ${tier} of the ${abilityName} ability.`
+                `Your item has been imbued with level ${tier} of the ${abilityName} ability.`,
             );
-
             return;
         }
 
@@ -168,17 +159,14 @@ class Enchant {
             case 'armor':
             case 'armorarcher':
                 this.selectedItem.ability = Utils.randomInt(2, 3);
-
                 break;
 
             case 'weapon':
                 this.selectedItem.ability = Utils.randomInt(0, 1);
-
                 break;
 
             case 'weaponarcher':
                 this.selectedItem.ability = Utils.randomInt(4, 5);
-
                 break;
 
             case 'pendant':
@@ -196,16 +184,16 @@ class Enchant {
         _.each(Modules.Enchantment, (id, index) => {
             if (id === this.selectedItem.ability)
                 this.player.notify(
-                    `Your item has been imbued with the ${index.toLowerCase()} ability.`
+                    `Your item has been imbued with the ${index.toLowerCase()} ability.`,
                 );
         });
     }
 
-    verify() {
+    verify(): boolean {
         return Items.isEnchantable(this.selectedItem.id) && Items.isShard(this.selectedShards.id);
     }
 
-    hasAbility(item) {
+    hasAbility(item): boolean {
         return item.ability !== -1;
     }
 }

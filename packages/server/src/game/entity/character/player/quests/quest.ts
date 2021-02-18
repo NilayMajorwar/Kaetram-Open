@@ -1,12 +1,17 @@
-/* global module */
-
-import _ from 'lodash';
 import Messages from '../../../../../network/messages';
 import Packets from '../../../../../network/packets';
 import Utils from '../../../../../util/utils';
 import Player from '../player';
 import NPC from '../../../npc/npc';
 import Mob from '../../mob/mob';
+
+export type QuestInfo = {
+    id: number;
+    name: string;
+    description: string;
+    stage: number;
+    finished: boolean;
+};
 
 class Quest {
     public player: Player;
@@ -18,7 +23,7 @@ class Quest {
 
     public stage: number;
 
-    npcTalkCallback: Function;
+    npcTalkCallback: (npc: NPC) => void;
 
     constructor(player: Player, data: any) {
         this.player = player;
@@ -31,13 +36,13 @@ class Quest {
         this.stage = 0;
     }
 
-    load(stage: number) {
+    load(stage: number): void {
         if (!stage) this.update();
         else this.stage = stage;
     }
 
-    finish() {
-        let item = this.getItemReward();
+    finish(): void {
+        const item = this.getItemReward();
 
         if (item) {
             if (this.hasInventorySpace(item.id, item.count))
@@ -45,7 +50,7 @@ class Quest {
                     id: item.id,
                     count: item.count,
                     ability: -1,
-                    abilityLevel: -1
+                    abilityLevel: -1,
                 });
             else {
                 this.player.notify('You do not have enough space in your inventory.');
@@ -60,120 +65,112 @@ class Quest {
         this.player.send(
             new Messages.Quest(Packets.QuestOpcode.Finish, {
                 id: this.id,
-                isQuest: true
-            })
+                isQuest: true,
+            }),
         );
 
         this.update();
     }
 
-    setStage(stage: number) {
+    setStage(stage: number): void {
         this.stage = stage;
         this.update();
     }
 
-    triggerTalk(npc: NPC) {
+    triggerTalk(npc: NPC): void {
         if (this.npcTalkCallback) this.npcTalkCallback(npc);
     }
 
-    update() {
-        return this.player.save();
+    update(): void {
+        this.player.save();
     }
 
     getConversation(id: number) {
-        let conversation = this.data.conversations[id];
-
+        const conversation = this.data.conversations[id];
         if (!conversation || !conversation[this.stage]) return [''];
-
         return conversation[this.stage];
     }
 
     updatePointers() {
         if (!this.data.pointers) return;
-
-        let pointer = this.data.pointers[this.stage];
-
+        const pointer = this.data.pointers[this.stage];
         if (!pointer) return;
-
-        let opcode = pointer[0];
+        const opcode = pointer[0];
 
         if (opcode === 4)
             this.player.send(
                 new Messages.Pointer(opcode, {
                     id: Utils.generateRandomId(),
-                    button: pointer[1]
-                })
+                    button: pointer[1],
+                }),
             );
         else
             this.player.send(
                 new Messages.Pointer(opcode, {
                     id: Utils.generateRandomId(),
                     x: pointer[1],
-                    y: pointer[2]
-                })
+                    y: pointer[2],
+                }),
             );
     }
 
-    forceTalk(npc: NPC, message: string) {
+    forceTalk(npc: NPC, message: string): void {
         if (!npc) return;
 
         this.player.talkIndex = 0;
-
         this.player.send(
             new Messages.NPC(Packets.NPCOpcode.Talk, {
                 id: npc.instance,
-                text: message
-            })
+                text: message,
+            }),
         );
     }
 
-    resetTalkIndex() {
-        /**
-         * Resets the player's talk index for the next dialogue to take place.
-         */
-
+    /**
+     * Resets the player's talk index for the next dialogue to take place.
+     */
+    resetTalkIndex(): void {
         this.player.talkIndex = 0;
     }
 
-    clearPointers() {
+    clearPointers(): void {
         this.player.send(new Messages.Pointer(Packets.PointerOpcode.Remove, {}));
     }
 
-    onNPCTalk(callback: Function) {
+    onNPCTalk(callback: (npc: NPC) => void): void {
         this.npcTalkCallback = callback;
     }
 
-    hasMob(mob: Mob) {
+    hasMob(mob: Mob): boolean {
         if (!this.data.mobs) return;
-
-        return this.data.mobs.indexOf(mob.id) > -1;
+        return this.data.mobs.includes(mob.id);
     }
 
-    hasNPC(id: number) {
-        return this.data.npcs.indexOf(id) > -1;
+    hasNPC(id: number): boolean {
+        return this.data.npcs.includes(id);
     }
 
-    hasItemReward() {
+    hasItemReward(): boolean {
         return !!this.data.itemReward;
     }
 
-    hasInventorySpace(id: number, count: number) {
+    hasInventorySpace(id: number, count: number): boolean {
         return this.player.inventory.canHold(id, count);
     }
 
-    hasDoorUnlocked(door: any) {
+    hasDoorUnlocked(door: any): boolean {
         return this.stage > 9998;
     }
 
-    isFinished() {
+    isFinished(): boolean {
         return this.stage > 9998;
     }
 
-    getId() {
+    getId(): number {
         return this.id;
     }
 
-    getName() {
+    getName(): string {
         return this.name;
     }
 
@@ -185,7 +182,7 @@ class Quest {
         return this.data.itemReq ? this.data.itemReq[this.stage] : null;
     }
 
-    getStage() {
+    getStage(): number {
         return this.stage;
     }
 
@@ -193,17 +190,17 @@ class Quest {
         return this.hasItemReward() ? this.data.itemReward : null;
     }
 
-    getDescription() {
+    getDescription(): string {
         return this.description;
     }
 
-    getInfo() {
+    getInfo(): QuestInfo {
         return {
             id: this.getId(),
             name: this.getName(),
             description: this.getDescription(),
             stage: this.getStage(),
-            finished: this.isFinished()
+            finished: this.isFinished(),
         };
     }
 }

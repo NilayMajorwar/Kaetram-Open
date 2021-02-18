@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import Profession from './profession';
 import Messages from '../../../../../../network/messages';
 import Modules from '../../../../../../util/modules';
@@ -10,11 +9,10 @@ import Player from '../../player';
 class Lumberjacking extends Profession {
     tick: number;
 
-    cuttingInterval: any;
+    cuttingInterval: NodeJS.Timeout | null;
     started: boolean;
 
-    treeId: any; // TODO
-
+    treeId: string; // TODO
     queuedTrees: any;
 
     constructor(id: number, player: Player) {
@@ -26,7 +24,7 @@ class Lumberjacking extends Profession {
         this.started = false;
     }
 
-    start() {
+    start(): void {
         if (this.started) return;
 
         this.cuttingInterval = setInterval(() => {
@@ -47,30 +45,32 @@ class Lumberjacking extends Profession {
                 this.sync();
                 this.player.sendToRegion(
                     new Messages.Animation(this.player.instance, {
-                        action: Modules.Actions.Attack
-                    })
+                        action: Modules.Actions.Attack,
+                    }),
                 );
 
-                let probability = Formulas.getTreeChance(this.player, this.treeId);
+                const probability = Formulas.getTreeChance(this.player, this.treeId);
 
                 if (Utils.randomInt(0, probability) === 2) {
                     this.addExperience(Trees.Experience[this.treeId]);
 
                     this.player.inventory.add({
                         id: Trees.Logs[this.treeId],
-                        count: 1
+                        count: 1,
                     });
 
                     if (this.getTreeDestroyChance())
                         this.world.destroyTree(this.targetId, Modules.Trees[this.treeId]);
                 }
-            } catch (e) {}
+            } catch {
+                // TODO: Add error-catching here
+            }
         }, this.tick);
 
         this.started = true;
     }
 
-    stop() {
+    stop(): void {
         if (!this.started) return;
 
         this.treeId = null;
@@ -82,8 +82,8 @@ class Lumberjacking extends Profession {
         this.started = false;
     }
 
-    // TODO
-    handle(id: any, treeId: any) {
+    // TODO: This method may be incomplete...
+    handle(id: any, treeId: string): void {
         if (!this.player.hasLumberjackingWeapon()) {
             this.player.notify('You do not have an axe to cut this tree with.');
             return;
@@ -94,7 +94,7 @@ class Lumberjacking extends Profession {
 
         if (this.level < Trees.Levels[this.treeId]) {
             this.player.notify(
-                `You must be at least level ${Trees.Levels[this.treeId]} to cut this tree!`
+                `You must be at least level ${Trees.Levels[this.treeId]} to cut this tree!`,
             );
             return;
         }
@@ -102,11 +102,11 @@ class Lumberjacking extends Profession {
         this.start();
     }
 
-    getTreeDestroyChance() {
+    getTreeDestroyChance(): boolean {
         return Utils.randomInt(0, Trees.Chances[this.treeId]) === 2;
     }
 
-    getQueueCount() {
+    getQueueCount(): number {
         return Object.keys(this.queuedTrees).length;
     }
 }

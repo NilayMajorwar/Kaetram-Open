@@ -1,40 +1,36 @@
-/* global module */
-
 import Points from './points';
 
 class Mana extends Points {
-    manaCallback: Function;
-    maxManaCallback: Function;
+    manaCallback: () => void;
+    maxManaCallback: () => void;
 
     constructor(mana: number, maxMana: number) {
         super(mana, maxMana);
     }
 
-    setMana(mana: number) {
+    setMana(mana: number): void {
         this.points = mana;
-
         if (this.manaCallback) this.manaCallback();
     }
 
-    setMaxMana(maxMana: number) {
+    setMaxMana(maxMana: number): void {
         this.maxPoints = maxMana;
-
         if (this.maxManaCallback) this.maxManaCallback();
     }
 
-    getMana() {
+    getMana(): number {
         return this.points;
     }
 
-    getMaxMana() {
+    getMaxMana(): number {
         return this.maxPoints;
     }
 
-    onMana(callback: Function) {
+    onMana(callback: () => void): void {
         this.manaCallback = callback;
     }
 
-    onMaxMana(callback: Function) {
+    onMaxMana(callback: () => void): void {
         this.maxManaCallback = callback;
     }
 }

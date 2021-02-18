@@ -44,7 +44,7 @@ export default class Bot {
     private connect(): void {
         const connection = io('ws://127.0.0.1:9001', {
             forceNew: true,
-            reconnection: false
+            reconnection: false,
         });
 
         connection.on('connect', () => {
@@ -53,7 +53,7 @@ export default class Bot {
             connection.emit('client', {
                 gVer,
                 cType: 'HTML5',
-                bot: true
+                bot: true,
             });
         });
 
@@ -81,7 +81,7 @@ export default class Bot {
     private handlePackets(
         connection: SocketIOClient.Socket,
         message: string[] | [number, PacketInfo],
-        type?: string
+        type?: string,
     ): void {
         if (type === 'utf8' || !isArray(message)) {
             log.info(`Received UTF8 message ${message}.`);
@@ -112,7 +112,7 @@ export default class Bot {
     private send(
         connection: SocketIOClient.Socket,
         packet: number,
-        data: (string | number)[]
+        data: (string | number)[],
     ): void {
         const json = JSON.stringify([packet, data]);
 

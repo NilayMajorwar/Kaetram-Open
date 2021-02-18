@@ -1,5 +1,5 @@
-import fs from 'fs';
 import _ from 'lodash';
+import fs from 'fs';
 import path from 'path';
 
 import Grids from './grids';
@@ -50,7 +50,7 @@ class Map {
     warps: any;
 
     trees: any;
-    treeIndexes: any;
+    treeIndexes: number[];
 
     rocks: any;
     rockIndexes: any;
@@ -68,7 +68,7 @@ class Map {
     checksum: string;
 
     readyInterval: any;
-    readyCallback: Function;
+    readyCallback: () => void;
 
     constructor(world: World) {
         this.world = world;
@@ -82,16 +82,22 @@ class Map {
         this.grids = new Grids(this);
     }
 
-    create(jsonData?: any) {
+    create(jsonData?: any): void {
         try {
-            map = jsonData || JSON.parse(fs.readFileSync(mapDestination, {
-                encoding: 'utf8',
-                flag: 'r'
-            }));
-        } catch (e) { log.error('Could not create the map file.'); };
+            map =
+                jsonData ||
+                JSON.parse(
+                    fs.readFileSync(mapDestination, {
+                        encoding: 'utf8',
+                        flag: 'r',
+                    }),
+                );
+        } catch {
+            log.error('Could not create the map file.');
+        }
     }
 
-    load() {
+    load(): void {
         this.version = map.version || 0;
 
         this.data = map.data;
@@ -138,19 +144,16 @@ class Map {
 
         this.ready = true;
 
-        if (this.world.ready)
-            return;
+        if (this.world.ready) return;
 
         this.readyInterval = setInterval(() => {
             if (this.readyCallback) this.readyCallback();
-
             clearInterval(this.readyInterval);
             this.readyInterval = null;
         }, 75);
-
     }
 
-    loadAreas() {
+    loadAreas(): void {
         /**
          * The structure for the new this.areas is as follows:
          *
@@ -175,7 +178,7 @@ class Map {
         this.areas['Achievements'] = new AchievementAreas();
     }
 
-    loadDoors() {
+    loadDoors(): void {
         this.doors = {};
 
         _.each(map.doors, (door: any) => {
@@ -199,7 +202,7 @@ class Map {
                     break;
             }
 
-            let index = this.gridPositionToIndex(door.x, door.y) + 1;
+            const index = this.gridPositionToIndex(door.x, door.y) + 1;
 
             this.doors[index] = {
                 x: door.tx,
@@ -208,12 +211,12 @@ class Map {
                 portal: door.p ? door.p : 0,
                 level: door.l,
                 achievement: door.a,
-                rank: door.r
+                rank: door.r,
             };
         });
     }
 
-    loadStaticEntities() {
+    loadStaticEntities(): void {
         this.staticEntities = [];
 
         // Legacy static entities (from Tiled);
@@ -221,12 +224,12 @@ class Map {
             this.staticEntities.push({
                 tileIndex: tileIndex,
                 string: entity.type,
-                roaming: entity.roaming
+                roaming: entity.roaming,
             });
         });
 
         _.each(Spawns, (data) => {
-            let tileIndex = this.gridPositionToIndex(data.x, data.y);
+            const tileIndex = this.gridPositionToIndex(data.x, data.y);
 
             this.staticEntities.push({
                 tileIndex: tileIndex,
@@ -234,36 +237,30 @@ class Map {
                 roaming: data.roaming,
                 miniboss: data.miniboss,
                 achievementId: data.achievementId,
-                boss: data.boss
+                boss: data.boss,
             });
         });
     }
 
-    indexToGridPosition(tileIndex: number) {
+    indexToGridPosition(tileIndex: number): { x: number; y: number } {
         tileIndex -= 1;
-
-        let x = this.getX(tileIndex + 1, this.width),
-            y = Math.floor(tileIndex / this.width);
-
-        return {
-            x: x,
-            y: y
-        };
+        const x = this.getX(tileIndex + 1, this.width);
+        const y = Math.floor(tileIndex / this.width);
+        return { x, y };
     }
 
-    gridPositionToIndex(x: number, y: number) {
+    gridPositionToIndex(x: number, y: number): number {
         return y * this.width + x;
     }
 
-    getX(index: number, width: number) {
+    getX(index: number, width: number): number {
         if (index === 0) return 0;
-
         return index % width === 0 ? width - 1 : (index % width) - 1;
     }
 
-    getRandomPosition(area: Area) {
-        let pos: any = {},
-            valid = false;
+    getRandomPosition(area: Area): { x: number; y: number } {
+        const pos = { x: 0, y: 0 };
+        let valid = false;
 
         while (!valid) {
             pos.x = area.x + Utils.randomInt(0, area.width + 1);
@@ -274,11 +271,18 @@ class Map {
         return pos;
     }
 
-    inArea(posX: number, posY: number, x: number, y: number, width: number, height: number) {
+    inArea(
+        posX: number,
+        posY: number,
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+    ): boolean {
         return posX >= x && posY >= y && posX <= width + x && posY <= height + y;
     }
 
-    inTutorialArea(entity: Entity) {
+    inTutorialArea(entity: Entity): boolean {
         if (entity.x === -1 || entity.y === -1) return true;
 
         return (
@@ -288,27 +292,27 @@ class Map {
         );
     }
 
-    nearLight(light: any, x: number, y: number) {
-        let diff = Math.round(light.distance / 16),
-            startX = light.x - this.zoneWidth - diff,
-            startY = light.y - this.zoneHeight - diff,
-            endX = light.x + this.zoneWidth + diff,
-            endY = light.y + this.zoneHeight + diff;
+    nearLight(light: any, x: number, y: number): boolean {
+        const diff = Math.round(light.distance / 16);
+        const startX = light.x - this.zoneWidth - diff;
+        const startY = light.y - this.zoneHeight - diff;
+        const endX = light.x + this.zoneWidth + diff;
+        const endY = light.y + this.zoneHeight + diff;
 
         return x > startX && y > startY && x < endX && y < endY;
     }
 
     isObject(object: any) {
-        return this.objects.indexOf(object) > -1;
+        return this.objects.includes(object);
     }
 
     getPositionObject(x: number, y: number) {
-        let index = this.gridPositionToIndex(x, y),
-            tiles: any = this.data[index],
-            objectId: any;
+        const index = this.gridPositionToIndex(x, y);
+        const tiles = this.data[index];
+        let objectId: any;
 
-        if (tiles instanceof Array)
-            for (let i in tiles)
+        if (Array.isArray(tiles))
+            for (const i in tiles)
                 if (this.isObject(tiles[i])) objectId = tiles[i];
                 else if (this.isObject(tiles)) objectId = tiles;
 
@@ -317,28 +321,26 @@ class Map {
 
     getCursor(tileIndex: number, tileId: number) {
         if (tileId in this.cursors) return this.cursors[tileId];
-
-        let cursor = Objects.getCursor(this.getObjectId(tileIndex));
-
+        const cursor = Objects.getCursor(this.getObjectId(tileIndex));
         if (!cursor) return null;
-
         return cursor;
     }
 
-    getObjectId(tileIndex: number) {
-        let position = this.indexToGridPosition(tileIndex + 1);
-
+    getObjectId(tileIndex: number): string {
+        const position = this.indexToGridPosition(tileIndex + 1);
         return position.x + '-' + position.y;
     }
 
     getObject(x: number, y: number, data: any) {
-        let index = this.gridPositionToIndex(x, y) - 1,
-            tiles = this.data[index];
+        const index = this.gridPositionToIndex(x, y) - 1;
+        const tiles = this.data[index];
 
-        if (tiles instanceof Array) for (let i in tiles) if (tiles[i] in data) return tiles[i];
+        if (Array.isArray(tiles)) {
+            const tile = tiles.find((t) => t in data);
+            if (tile) return tile;
+        }
 
         if (tiles in data) return tiles;
-
         return null;
     }
 
@@ -351,13 +353,12 @@ class Map {
     }
 
     // Transforms an object's `instance` or `id` into position
-    idToPosition(id: string) {
-        let split = id.split('-');
-
+    idToPosition(id: string): { x: number; y: number } {
+        const split = id.split('-');
         return { x: parseInt(split[0]), y: parseInt(split[1]) };
     }
 
-    isDoor(x: number, y: number) {
+    isDoor(x: number, y: number): boolean {
         return !!this.doors[this.gridPositionToIndex(x, y) + 1];
     }
 
@@ -365,7 +366,7 @@ class Map {
         return this.doors[this.gridPositionToIndex(x, y) + 1];
     }
 
-    isValidPosition(x: number, y: number) {
+    isValidPosition(x: number, y: number): boolean {
         return (
             Number.isInteger(x) &&
             Number.isInteger(y) &&
@@ -374,44 +375,36 @@ class Map {
         );
     }
 
-    isOutOfBounds(x: number, y: number) {
+    isOutOfBounds(x: number, y: number): boolean {
         return x < 0 || x >= this.width || y < 0 || y >= this.height;
     }
 
-    isPlateau(index: number) {
+    isPlateau(index: number): boolean {
         return index in this.plateau;
     }
 
     isColliding(x: number, y: number) {
         if (this.isOutOfBounds(x, y)) return false;
-
-        let tileIndex = this.gridPositionToIndex(x, y);
-
-        return this.collisions.indexOf(tileIndex) > -1;
+        const tileIndex = this.gridPositionToIndex(x, y);
+        return this.collisions.includes(tileIndex);
     }
 
     /* For preventing NPCs from roaming in null areas. */
-    isEmpty(x: number, y: number) {
+    isEmpty(x: number, y: number): boolean {
         if (this.isOutOfBounds(x, y)) return true;
-
-        let tileIndex = this.gridPositionToIndex(x, y);
-
+        const tileIndex = this.gridPositionToIndex(x, y);
         return this.data[tileIndex] === 0;
     }
 
-    getPlateauLevel(x: number, y: number) {
-        let index = this.gridPositionToIndex(x, y);
-
+    getPlateauLevel(x: number, y: number): number {
+        const index = this.gridPositionToIndex(x, y);
         if (!this.isPlateau(index)) return 0;
-
         return this.plateau[index];
     }
 
-    getActualTileIndex(tileIndex: number) {
-        let tileset = this.getTileset(tileIndex);
-
+    getActualTileIndex(tileIndex: number): number {
+        const tileset = this.getTileset(tileIndex);
         if (!tileset) return;
-
         return tileIndex - tileset.firstGID - 1;
     }
 
@@ -422,30 +415,26 @@ class Map {
             return this.tilesets[idx];
          */
 
-        for (let id in this.tilesets)
-            if (this.tilesets.hasOwnProperty(id))
-                if (
-                    tileIndex > this.tilesets[id].firstGID - 1 &&
-                    tileIndex < this.tilesets[id].lastGID + 1
-                )
-                    return this.tilesets[id];
-
+        for (const id in this.tilesets) {
+            if (
+                tileIndex > this.tilesets[id].firstGID - 1 &&
+                tileIndex < this.tilesets[id].lastGID + 1
+            )
+                return this.tilesets[id];
+        }
         return null;
     }
 
     getWarpById(id: number) {
-        let warpName = Object.keys(Modules.Warps)[id];
-
+        const warpName = Object.keys(Modules.Warps)[id];
         if (!warpName) return null;
 
-        let warp = this.warps[warpName.toLowerCase()];
-
+        const warp = this.warps[warpName.toLowerCase()];
         warp.name = warpName;
-
         return warp;
     }
 
-    isReady(callback: Function) {
+    isReady(callback: () => void): void {
         this.readyCallback = callback;
     }
 }

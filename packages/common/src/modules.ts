@@ -2,24 +2,24 @@ export enum Orientation {
     Up,
     Down,
     Left,
-    Right
+    Right,
 }
 
 export enum Types {
-    Player
+    Player,
 }
 
 export enum InputType {
     Key,
     LeftClick,
-    RightClick
+    RightClick,
 }
 
 export enum Actions {
     Idle,
     Attack,
     Walk,
-    Orientate
+    Orientate,
 }
 
 export enum Hits {
@@ -32,11 +32,11 @@ export enum Hits {
     Critical,
     Stun,
     Explosive,
-    Profession
+    Profession,
 }
 
 export enum Infos {
-    Countdown
+    Countdown,
 }
 
 export enum Projectiles {
@@ -45,7 +45,7 @@ export enum Projectiles {
     FireBall,
     IceBall,
     Terror,
-    Tornado
+    Tornado,
 }
 
 export enum Abilities {
@@ -55,7 +55,7 @@ export enum Abilities {
     Tornado,
     Run,
     Call,
-    Evasion
+    Evasion,
 }
 
 export enum Equipment {
@@ -63,7 +63,7 @@ export enum Equipment {
     Weapon,
     Pendant,
     Ring,
-    Boots
+    Boots,
 }
 
 export enum Hovering {
@@ -73,7 +73,7 @@ export enum Hovering {
     Item,
     NPC,
     Chest,
-    Object
+    Object,
 }
 
 export enum Keys {
@@ -104,45 +104,45 @@ export enum Keys {
     T = 84,
     I = 73,
     P = 80,
-    M = 77
+    M = 77,
 }
 
 export enum AudioTypes {
     Music,
-    SFX
+    SFX,
 }
 
 export enum Pointers {
     Entity,
     Position,
     Relative,
-    Button
+    Button,
 }
 
 export enum Trade {
     Request,
     Started,
     Accepted,
-    Finished
+    Finished,
 }
 
 enum Type {
     Killing,
-    Scavenge
+    Scavenge,
 }
 enum Rewards {
     Item,
     Experience,
-    Skill
+    Skill,
 }
 export const Achievements = {
     Type,
-    Rewards
+    Rewards,
 };
 
 export enum Quests {
     Introduction,
-    BulkySituation
+    BulkySituation,
 }
 
 export enum Languages {
@@ -152,7 +152,7 @@ export enum Languages {
     Spanish,
     German,
     Japanese,
-    Chinese
+    Chinese,
 }
 
 export enum Warps {
@@ -161,24 +161,24 @@ export enum Warps {
     Lakesworld,
     Aynor,
     Crullfeld,
-    Patsow
+    Patsow,
 }
 
 export enum Professions {
     Lumberjacking,
     Fishing,
-    Mining
+    Mining,
 }
 
 export enum Trees {
     Oak,
     Palm,
     IceOak,
-    IcePalm
+    IcePalm,
 }
 
 export enum Rocks {
-    BlueSteel
+    BlueSteel,
 }
 
 export enum Enchantment {
@@ -189,7 +189,7 @@ export enum Enchantment {
     Explosive,
     Stun,
     AntiStun,
-    Splash
+    Splash,
 }
 
 export const EnchantmentNames = [
@@ -200,7 +200,7 @@ export const EnchantmentNames = [
     'Explosive',
     'Stun',
     'AntiStun',
-    'Splash'
+    'Splash',
 ];
 
 export interface Colours {
@@ -211,51 +211,51 @@ export interface Colours {
 export const DamageColours = {
     received: {
         fill: 'rgb(255, 50, 50)',
-        stroke: 'rgb(255, 180, 180)'
+        stroke: 'rgb(255, 180, 180)',
     },
 
     receivedCritical: {
         fill: 'rgb(204, 0, 204)',
-        stroke: 'rgb(255, 180, 180)'
+        stroke: 'rgb(255, 180, 180)',
     },
 
     inflicted: {
         fill: 'white',
-        stroke: '#373737'
+        stroke: '#373737',
     },
 
     inflictedCritical: {
         fill: 'rgb(255, 153, 204)',
-        stroke: '#373737'
+        stroke: '#373737',
     },
 
     healed: {
         fill: 'rgb(80, 255, 80)',
-        stroke: 'rgb(50, 120, 50)'
+        stroke: 'rgb(50, 120, 50)',
     },
 
     mana: {
         fill: 'rgb(73, 94, 228)',
-        stroke: 'rgb(56, 63, 133)'
+        stroke: 'rgb(56, 63, 133)',
     },
 
     health: {
         fill: 'white',
-        stroke: '#373737'
+        stroke: '#373737',
     },
 
     exp: {
         fill: 'rgb(80, 180, 255)',
-        stroke: 'rgb(15, 85, 138)'
+        stroke: 'rgb(15, 85, 138)',
     },
 
     poison: {
         fill: 'rgb(66, 183, 77)',
-        stroke: 'rgb(50, 120 , 50)'
+        stroke: 'rgb(50, 120 , 50)',
     },
 
     profession: {
         fill: 'rgb(204, 0, 153)',
-        stroke: 'rgb(112, 17, 112)'
-    }
+        stroke: 'rgb(112, 17, 112)',
+    },
 };

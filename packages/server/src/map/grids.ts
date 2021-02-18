@@ -1,5 +1,3 @@
-/* global module */
-
 import _ from 'lodash';
 import Map from './map';
 import Entity from '../game/entity/entity';
@@ -10,21 +8,18 @@ class Grids {
 
     constructor(map: Map) {
         this.map = map;
-
         this.entityGrid = [];
-
         this.load();
     }
 
-    load() {
+    load(): void {
         for (let i = 0; i < this.map.height; i++) {
-            this.entityGrid[i] = [];
-
+            this.entityGrid[i] = Array.from({ length: this.map.width });
             for (let j = 0; j < this.map.width; j++) this.entityGrid[i][j] = {};
         }
     }
 
-    updateEntityPosition(entity: Entity) {
+    updateEntityPosition(entity: Entity): void {
         if (entity && entity.oldX === entity.x && entity.oldY === entity.y) return;
 
         this.removeFromEntityGrid(entity, entity.oldX, entity.oldY);
@@ -33,7 +28,7 @@ class Grids {
         entity.updatePosition();
     }
 
-    addToEntityGrid(entity: Entity, x: number, y: number) {
+    addToEntityGrid(entity: Entity, x: number, y: number): void {
         if (
             entity &&
             x > 0 &&
@@ -45,7 +40,7 @@ class Grids {
             this.entityGrid[y][x][entity.instance] = entity;
     }
 
-    removeFromEntityGrid(entity: Entity, x: number, y: number) {
+    removeFromEntityGrid(entity: Entity, x: number, y: number): void {
         if (
             entity &&
             x > 0 &&
@@ -58,14 +53,13 @@ class Grids {
             delete this.entityGrid[y][x][entity.instance];
     }
 
-    getSurroundingEntities(entity: Entity, radius?: number, include?: boolean) {
-        let entities = [];
-
+    getSurroundingEntities(entity: Entity, radius?: number, include?: boolean): Array<Entity> {
         if (!this.checkBounds(entity.x, entity.y, radius)) return;
 
+        const entities = [];
         for (let i = -radius; i < radius + 1; i++) {
             for (let j = -radius; j < radius + 1; j++) {
-                let pos = this.entityGrid[entity.y + i][entity.x + j];
+                const pos = this.entityGrid[entity.y + i][entity.x + j];
 
                 if (_.size(pos) > 0) {
                     _.each(pos, (pEntity: Entity) => {
@@ -79,7 +73,7 @@ class Grids {
         return entities;
     }
 
-    checkBounds(x: number, y: number, radius?: number) {
+    checkBounds(x: number, y: number, radius?: number): boolean {
         return (
             x + radius < this.map.width &&
             x - radius > 0 &&

@@ -3,20 +3,18 @@ import log from '../../../../util/log';
 
 class Friends {
     player: Player;
-
-    friends: any;
+    friends: { [key: string]: string };
 
     constructor(player: Player) {
         this.player = player;
-
         this.friends = {};
     }
 
-    update(info: any) {
+    update(info: string): void {
         log.info(info);
     }
 
-    add(username: string) {
+    add(username: string): void {
         if (username in this.friends) {
             this.player.notify('That player is already in your friends list.');
             return;
@@ -25,11 +23,11 @@ class Friends {
         this.friends[username] = 'offline';
     }
 
-    remove(username: string) {
+    remove(username: string): void {
         delete this.friends[username];
     }
 
-    getArray() {
+    getArray(): { [key: string]: string } {
         return this.friends;
     }
 }

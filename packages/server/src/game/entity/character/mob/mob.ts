@@ -1,7 +1,4 @@
-/* global module */
-
-import _ from 'lodash';
-import Character from '../character';
+import Character, { CharacterState } from '../character';
 import Mobs from '../../../../util/mobs';
 import Utils from '../../../../util/utils';
 import Items from '../../../../util/items';
@@ -10,6 +7,14 @@ import World from '../../../world';
 import MobHandler from './mobhandler';
 import Player from '../player/player';
 import Area from '../../../../map/area';
+
+interface MobState extends CharacterState {
+    hitPoints: number;
+    maxHitPoints: number;
+    attackRange: number;
+    level: number;
+    hiddenName: boolean;
+}
 
 class Mob extends Character {
     world: World;
@@ -35,13 +40,14 @@ class Mob extends Character {
 
     alwaysAggressive: boolean;
 
-    lastAttacker: Player;
+    lastAttacker: Character;
 
-    loadCallback: Function;
-    refreshCallback: Function;
-    respawnCallback: Function;
-    returnCallback: Function;
-    deathCallback: Function;
+    loadCallback: () => void;
+    refreshCallback: () => void;
+
+    respawnCallback: () => void;
+    returnCallback: () => void;
+    deathCallback: () => void;
 
     area: Area;
 
@@ -82,53 +88,48 @@ class Mob extends Character {
         this.projectileName = this.getProjectileName();
     }
 
-    load() {
+    load(): void {
         this.handler = new MobHandler(this, this.world);
-
         if (this.loadCallback) this.loadCallback();
     }
 
-    refresh() {
+    refresh(): void {
         this.hitPoints = this.data.hitPoints;
         this.maxHitPoints = this.data.hitPoints;
 
         if (this.refreshCallback) this.refreshCallback();
     }
 
-    getDrop() {
+    getDrop(): { id: string; count: number } | null {
         if (!this.drops) return null;
 
-        let random = Utils.randomInt(0, Constants.DROP_PROBABILITY),
-            dropObjects = Object.keys(this.drops),
-            item = dropObjects[Utils.randomInt(0, dropObjects.length - 1)];
+        const random = Utils.randomInt(0, Constants.DROP_PROBABILITY);
+        const dropObjects = Object.keys(this.drops);
+        const item = dropObjects[Utils.randomInt(0, dropObjects.length - 1)];
 
         if (random > this.drops[item]) return null;
 
-        let count = item === 'gold' ? Utils.randomInt(this.level, this.level * 5) : 1;
+        const count = item === 'gold' ? Utils.randomInt(this.level, this.level * 5) : 1;
 
         return {
             id: Items.stringToId(item),
-            count: count
+            count: count,
         };
     }
 
-    getProjectileName() {
+    getProjectileName(): string {
         return this.data.projectileName ? this.data.projectileName : 'projectile-pinearrow';
     }
 
-    canAggro(player: Player) {
+    canAggro(player: Character): boolean {
         if (this.hasTarget()) return false;
-
         if (!this.aggressive) return false;
-
         if (Math.floor(this.level * 1.5) < player.level && !this.alwaysAggressive) return false;
-
-        if (!player.hasAggressionTimer()) return false;
-
+        if (player instanceof Player && !player.hasAggressionTimer()) return false;
         return this.isNear(player, this.aggroRange);
     }
 
-    destroy() {
+    destroy(): void {
         this.dead = true;
         this.clearTarget();
         this.resetPosition();
@@ -137,41 +138,38 @@ class Mob extends Character {
         if (this.area) this.area.removeEntity(this);
     }
 
-    return() {
+    return(): void {
         this.clearTarget();
         this.resetPosition();
         this.setPosition(this.x, this.y);
     }
 
-    isRanged() {
+    isRanged(): boolean {
         return this.attackRange > 1;
     }
 
-    distanceToSpawn() {
+    distanceToSpawn(): number {
         return this.getCoordDistance(this.spawnLocation[0], this.spawnLocation[1]);
     }
 
-    isAtSpawn() {
+    isAtSpawn(): boolean {
         return this.x === this.spawnLocation[0] && this.y === this.spawnLocation[1];
     }
 
-    isOutsideSpawn() {
+    isOutsideSpawn(): boolean {
         return this.distanceToSpawn() > this.spawnDistance;
     }
 
-    addToChestArea(chestAreas: any) {
-        let area = _.find(chestAreas, (area: Area) => {
-            return area.contains(this.x, this.y);
-        });
-
+    addToChestArea(chestAreas: Array<Area>): void {
+        const area = chestAreas.find((area: Area) => area.contains(this.x, this.y));
         if (area) area.addEntity(this);
     }
 
-    respawn() {
+    respawn(): void {
         /**
          * Some entities are static (only spawned once during an event)
          * Meanwhile, other entities act as an illusion to another entity,
-         * so the resawning script is handled elsewhere.
+         * so the respawning script is handled elsewhere.
          */
 
         if (!this.static || this.respawnDelay === -1) return;
@@ -181,40 +179,40 @@ class Mob extends Character {
         }, this.respawnDelay);
     }
 
-    getState() {
-        let base = super.getState();
+    getState(): MobState {
+        const base = super.getState() as MobState;
 
         base.hitPoints = this.hitPoints;
         base.maxHitPoints = this.maxHitPoints;
         base.attackRange = this.attackRange;
         base.level = this.level;
-        base.hiddenName = this.hiddenName; // TODO - Just don't send name when hiddenName present.
+        base.hiddenName = this.hiddenName; // TODO: Just don't send name when hiddenName present.
 
         return base;
     }
 
     // We take the plateau level of where the entity spawns.
-    getPlateauLevel() {
+    getPlateauLevel(): number {
         return this.world.map.getPlateauLevel(this.spawnLocation[0], this.spawnLocation[1]);
     }
 
-    resetPosition() {
+    resetPosition(): void {
         this.setPosition(this.spawnLocation[0], this.spawnLocation[1]);
     }
 
-    onLoad(callback: Function) {
+    onLoad(callback: () => void): void {
         this.loadCallback = callback;
     }
 
-    onRespawn(callback: Function) {
+    onRespawn(callback: () => void): void {
         this.respawnCallback = callback;
     }
 
-    onReturn = (callback: Function) => {
+    onReturn(callback: () => void): void {
         this.returnCallback = callback;
-    };
+    }
 
-    onRefresh(callback: Function) {
+    onRefresh(callback: () => void): void {
         this.refreshCallback = callback;
     }
 }

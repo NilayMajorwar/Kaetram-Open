@@ -1,5 +1,3 @@
-/* global module */
-
 import _ from 'lodash';
 import log from '../../../../util/log';
 import config from '../../../../../config';
@@ -24,7 +22,7 @@ class Handler {
     map: Map;
 
     updateTicks: number;
-    updateInterval: any;
+    updateInterval: NodeJS.Timeout | null;
 
     constructor(player: Player) {
         this.player = player;
@@ -38,12 +36,12 @@ class Handler {
         this.load();
     }
 
-    destroy() {
+    destroy(): void {
         clearInterval(this.updateInterval);
         this.updateInterval = null;
     }
 
-    load() {
+    load(): void {
         this.updateInterval = setInterval(() => {
             this.detectAggro();
             this.detectPVP(this.player.x, this.player.y);
@@ -86,7 +84,6 @@ class Handler {
              */
 
             if (this.player.combat.isRetaliating()) this.player.combat.begin(attacker);
-
             log.debug(`Player has been hit - damage: ${damage}`);
         });
 
@@ -97,15 +94,14 @@ class Handler {
             }
 
             if (this.player.quests.isAchievementMob(character)) {
-                let achievement = this.player.quests.getAchievementByMob(character);
-
+                const achievement = this.player.quests.getAchievementByMob(character);
                 if (achievement && achievement.isStarted())
                     this.player.quests.getAchievementByMob(character).step();
             }
         });
 
         this.player.onRegion(() => {
-            this.player.lastRegionChange = new Date().getTime();
+            this.player.lastRegionChange = Date.now();
 
             this.world.region.handle(this.player);
             this.world.region.push(this.player);
@@ -125,7 +121,7 @@ class Handler {
                 if (config.hubEnabled)
                     this.world.api.sendChat(
                         Utils.formatUsername(this.player.username),
-                        'has logged out!'
+                        'has logged out!',
                     );
             }
 
@@ -135,13 +131,11 @@ class Handler {
         this.player.onTalkToNPC((npc: NPC) => {
             if (this.player.quests.isQuestNPC(npc)) {
                 this.player.quests.getQuestByNPC(npc).triggerTalk(npc);
-
                 return;
             }
 
             if (this.player.quests.isAchievementNPC(npc)) {
                 this.player.quests.getAchievementByNPC(npc).converse(npc);
-
                 return;
             }
 
@@ -160,15 +154,14 @@ class Handler {
                     break;
             }
 
-            let text = Npcs.getText(npc.id);
-
+            const text = Npcs.getText(npc.id);
             if (!text) return;
 
             this.player.send(
                 new Messages.NPC(Packets.NPCOpcode.Talk, {
                     id: npc.instance,
-                    text: npc.talk(text, this.player)
-                })
+                    text: npc.talk(text, this.player),
+                }),
             );
         });
 
@@ -179,7 +172,7 @@ class Handler {
             }
         });
 
-        this.player.onPoison((info: any) => {
+        this.player.onPoison((info: string) => {
             this.player.sync();
 
             if (info) this.player.notify('You have been poisoned.');
@@ -195,71 +188,55 @@ class Handler {
              */
 
             if (this.player.cheatScore > 10) this.player.timeout();
-
             log.debug('Cheat score - ' + this.player.cheatScore);
         });
     }
 
-    detectAggro() {
-        let region = this.world.region.regions[this.player.region];
-
+    detectAggro(): void {
+        const region = this.world.region.regions[this.player.region];
         if (!region) return;
 
         _.each(region.entities, (character: Character) => {
             if (character && character.type === 'mob' && this.canEntitySee(character)) {
-                let aggro = character.canAggro(this.player);
-
+                const aggro = character.canAggro(this.player);
                 if (aggro) character.combat.begin(this.player);
             }
         });
     }
 
-    detectMusic(x: number, y: number) {
-        let musicArea = _.find(this.world.getMusicAreas(), (area: Area) => {
-                return area.contains(x, y);
-            }),
-            song = musicArea ? musicArea.id : null;
+    detectMusic(x: number, y: number): void {
+        const musicArea = this.world.getMusicAreas().find((area: Area) => area.contains(x, y));
+        const song = musicArea ? musicArea.id : null;
 
         if (this.player.currentSong !== song) this.player.updateMusic(song);
     }
 
-    detectPVP(x: number, y: number) {
-        let pvpArea = _.find(this.world.getPVPAreas(), (area: Area) => {
-            return area.contains(x, y);
-        });
-
+    detectPVP(x: number, y: number): void {
+        const pvpArea = this.world.getPVPAreas().find((area: Area) => area.contains(x, y));
         this.player.updatePVP(!!pvpArea);
     }
 
-    detectOverlay(x: number, y: number) {
-        let overlayArea = _.find(this.world.getOverlayAreas(), (area: Area) => {
-            return area.contains(x, y);
-        });
-
+    detectOverlay(x: number, y: number): void {
+        const overlayArea = this.world.getOverlayAreas().find((area: Area) => area.contains(x, y));
         this.player.updateOverlay(overlayArea);
     }
 
-    detectCamera(x: number, y: number) {
-        let cameraArea = _.find(this.world.getCameraAreas(), (area: Area) => {
-            return area.contains(x, y);
-        });
-
+    detectCamera(x: number, y: number): void {
+        const cameraArea = this.world.getCameraAreas().find((area: Area) => area.contains(x, y));
         this.player.updateCamera(cameraArea);
     }
 
-    detectAchievements(x: number, y: number) {
-        let achievementArea = _.find(this.world.getAchievementAreas(), (area: Area) => {
-            return area.contains(x, y);
-        });
-
+    detectAchievements(x: number, y: number): void {
+        const achievementArea = this.world
+            .getAchievementAreas()
+            .find((area: Area) => area.contains(x, y));
         if (!achievementArea || !achievementArea.achievement) return;
-
         if (!this.player.achievementsLoaded) return;
 
         this.player.finishAchievement(achievementArea.achievement);
     }
 
-    detectLights(x: number, y: number) {
+    detectLights(x: number, y: number): void {
         _.each(this.map.lights, (light) => {
             if (this.map.nearLight(light, x, y) && !this.player.hasLoadedLight(light)) {
                 // Add a half a tile offset so the light is centered on the tile.
@@ -270,33 +247,29 @@ class Handler {
         });
     }
 
-    detectClipping(x: number, y: number) {
-        let isColliding = this.map.isColliding(x, y);
-
-        if (!isColliding) return;
-
+    detectClipping(x: number, y: number): void {
+        if (!this.map.isColliding(x, y)) return;
         this.player.incoming.handleNoClip(x, y);
     }
 
-    handlePoison() {
+    handlePoison(): void {
         if (!this.player.poison) return;
 
-        let info: any = this.player.poison.split(':'),
-            timeDiff = new Date().getTime() - info[0];
+        const info: string[] = this.player.poison.split(':');
+        const timeDiff = Date.now() - parseInt(info[0], 10);
 
-        if (timeDiff > info[1]) {
+        if (timeDiff > parseInt(info[1], 10)) {
             this.player.setPoison('');
             return;
         }
 
-        let hit = new Hit(Modules.Hits.Poison, info[2]);
-
+        const hit = new Hit(Modules.Hits.Poison, parseInt(info[2]));
         hit.poison = true;
 
         this.player.combat.hit(this.player, this.player, hit.getData());
     }
 
-    canEntitySee(entity: Entity) {
+    canEntitySee(entity: Entity): boolean {
         return !this.player.hasInvisible(entity) && !this.player.hasInvisibleId(entity.id);
     }
 }

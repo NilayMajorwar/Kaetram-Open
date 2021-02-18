@@ -1,5 +1,3 @@
-/* global module */
-
 import Quest from '../quest';
 import Player from '../../player';
 
@@ -11,7 +9,7 @@ class Thelie extends Quest {
         this.data = data;
     }
 
-    load(stage: number) {
+    load(stage: number): void {
         super.load(stage);
     }
 }

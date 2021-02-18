@@ -1,3 +1,3 @@
-import healthFlask from './healthFlask';
+import healthFlask from './health-flask';
 
 export default { healthFlask };

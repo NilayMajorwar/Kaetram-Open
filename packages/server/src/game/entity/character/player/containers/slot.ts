@@ -1,6 +1,13 @@
 import log from '../../../../../util/log';
 import Items from '../../../../../util/items';
 
+export type SlotData = {
+    index: number;
+    string: string;
+    count: number;
+    ability: number;
+    abilityLevel: number;
+};
 class Slot {
     public index: number;
 
@@ -25,7 +32,7 @@ class Slot {
         this.string = null;
     }
 
-    load(id: any, count: any, ability: any, abilityLevel: any) {
+    load(id: any, count: any, ability: any, abilityLevel: any): void {
         this.id = parseInt(id);
         this.count = parseInt(count);
         this.ability = parseInt(ability);
@@ -38,7 +45,7 @@ class Slot {
         this.verify();
     }
 
-    empty() {
+    empty(): void {
         this.id = -1;
         this.count = -1;
         this.ability = -1;
@@ -47,32 +54,29 @@ class Slot {
         this.string = null;
     }
 
-    increment(amount: number) {
+    increment(amount: number): void {
         this.count += amount;
-
         this.verify();
     }
 
-    decrement(amount: number) {
+    decrement(amount: number): void {
         this.count -= amount;
-
         if (this.count < 1)
             log.error('[Slot] Item ' + this.id + ' has a count below 1 -> count: ' + this.count);
-
         this.verify();
     }
 
-    verify() {
+    verify(): void {
         if (isNaN(this.count) || this.count < 1) this.count = 1;
     }
 
-    getData() {
+    getData(): SlotData {
         return {
             index: this.index,
             string: this.string,
             count: this.count,
             ability: this.ability,
-            abilityLevel: this.abilityLevel
+            abilityLevel: this.abilityLevel,
         };
     }
 }

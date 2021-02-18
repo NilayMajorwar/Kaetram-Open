@@ -1,10 +1,8 @@
-/* global module */
-
 import Mob from '../game/entity/character/mob/mob';
 import Player from '../game/entity/character/player/player';
 
 class Area {
-    id: any;
+    id: number;
     x: number;
     y: number;
     width: number;
@@ -19,8 +17,8 @@ class Area {
     maxEntities: number;
     spawnDelay: number;
 
-    spawnCallback: Function;
-    emptyCallback: Function;
+    spawnCallback: () => void;
+    emptyCallback: () => void;
 
     achievement: any;
 
@@ -43,11 +41,11 @@ class Area {
         this.spawnDelay = 0;
     }
 
-    contains(x: number, y: number) {
+    contains(x: number, y: number): boolean {
         return x >= this.x && y >= this.y && x < this.x + this.width && y < this.y + this.height;
     }
 
-    addEntity(mob: Mob) {
+    addEntity(mob: Mob): void {
         if (this.entities.indexOf(mob) > 0) return;
 
         this.entities.push(mob);
@@ -59,33 +57,31 @@ class Area {
         if (this.spawnCallback) this.spawnCallback();
     }
 
-    removeEntity(mob: Mob) {
-        let index = this.entities.indexOf(mob);
-
+    removeEntity(mob: Mob): void {
+        const index = this.entities.indexOf(mob);
         if (index > -1) this.entities.splice(index, 1);
 
         if (this.entities.length === 0 && this.emptyCallback) {
-            if (mob.lastAttacker) this.handleAchievement(mob.lastAttacker);
-
+            if (mob.lastAttacker && mob.lastAttacker instanceof Player)
+                this.handleAchievement(mob.lastAttacker);
             this.emptyCallback();
         }
     }
 
-    handleAchievement(player: Player) {
+    handleAchievement(player: Player): void {
         if (!this.achievement) return;
-
         player.finishAchievement(this.achievement);
     }
 
-    setMaxEntities(maxEntities: number) {
+    setMaxEntities(maxEntities: number): void {
         this.maxEntities = maxEntities;
     }
 
-    onEmpty(callback: Function) {
+    onEmpty(callback: () => void): void {
         this.emptyCallback = callback;
     }
 
-    onSpawn(callback: Function) {
+    onSpawn(callback: () => void): void {
         this.spawnCallback = callback;
     }
 }

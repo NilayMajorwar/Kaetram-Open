@@ -1,6 +1,23 @@
-/* global module */
-
 import Items from '../../../../../util/items';
+
+export type EquipmentData = {
+    type: number;
+    name: string;
+    string: string;
+    count: number;
+    ability: number;
+    abilityLevel: number;
+    power: number;
+};
+
+export type EquipmentItemData = {
+    id: number;
+    name: string;
+    count: number;
+    ability: number;
+    abilityLevel: number;
+    string: string;
+};
 
 class Equipment {
     public name: string;
@@ -10,42 +27,42 @@ class Equipment {
     public abilityLevel: number;
 
     constructor(name: string, id: number, count: number, ability: number, abilityLevel: number) {
-        this.name = name;
         this.id = id;
+        this.name = name;
         this.count = count ? count : 0;
         this.ability = !isNaN(ability) ? ability : -1;
         this.abilityLevel = !isNaN(abilityLevel) ? abilityLevel : -1;
     }
 
-    getName() {
+    getName(): string {
         return this.name;
     }
 
-    getId() {
+    getId(): number {
         return this.id;
     }
 
-    getCount() {
+    getCount(): number {
         return this.count;
     }
 
-    getAbility() {
+    getAbility(): number {
         return this.ability;
     }
 
-    getAbilityLevel() {
+    getAbilityLevel(): number {
         return this.abilityLevel;
     }
 
-    getBaseAmplifier() {
-        return 1.0;
+    getBaseAmplifier(): number {
+        return 1;
     }
 
-    getType() {
+    getType(): number {
         return -1;
     }
 
-    getData() {
+    getData(): EquipmentData {
         return {
             type: this.getType(),
             name: Items.idToName(this.id),
@@ -53,22 +70,22 @@ class Equipment {
             count: this.count,
             ability: this.ability,
             abilityLevel: this.abilityLevel,
-            power: Items.getLevelRequirement(this.name)
+            power: Items.getLevelRequirement(this.name),
         };
     }
 
-    getString() {
+    getString(): string {
         return Items.idToString(this.id);
     }
 
-    getItem() {
+    getItem(): EquipmentItemData {
         return {
-            name: this.name,
-            string: Items.idToString(this.id),
             id: this.id,
+            name: this.name,
             count: this.count,
             ability: this.ability,
-            abilityLevel: this.abilityLevel
+            abilityLevel: this.abilityLevel,
+            string: Items.idToString(this.id),
         };
     }
 }

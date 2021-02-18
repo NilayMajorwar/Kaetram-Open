@@ -13,7 +13,7 @@ export default class WebSocket {
 
     public version: string;
 
-    public ips: { [id: string]: number }
+    public ips: { [id: string]: number };
     public connections: { [id: string]: Connection };
 
     public server: Server; // The SocketIO server
@@ -33,7 +33,8 @@ export default class WebSocket {
         this.ips = {};
         this.connections = {};
 
-        this.httpServer = (config.ssl ? https : http).createServer(this.httpResponse)
+        this.httpServer = (config.ssl ? https : http)
+            .createServer(this.httpResponse)
             .listen(this.port, this.host, () => {
                 log.info(`Server is now listening on port: ${this.port}.`);
 
@@ -42,8 +43,8 @@ export default class WebSocket {
 
         this.server = new Server(this.httpServer, {
             cors: {
-                origin: '*'
-            }
+                origin: '*',
+            },
         });
         this.server.on('connection', (socket: Socket) => {
             if (socket.handshake.headers['cf-connecting-ip'])
@@ -51,11 +52,10 @@ export default class WebSocket {
 
             log.info(`Received connection from: ${socket.conn.remoteAddress}.`);
 
-            let connection = new Connection(this.getId(), socket, this);
+            const connection = new Connection(this.getId(), socket, this);
 
             socket.on('client', (data: any) => {
                 if (!this.verifyVersion(connection, data.gVer)) return;
-
                 this.add(connection);
             });
         });
@@ -67,19 +67,19 @@ export default class WebSocket {
      * Returns an empty response if someone uses HTTP protocol
      * to access the server.
      */
-
-    httpResponse(_request: any, response: any) {
+    httpResponse(_request: any, response: any): void {
         response.writeHead(200, { 'Content-Type': 'text/plain' });
         response.write('This is server, why are you here?');
         response.end();
     }
 
     verifyVersion(connection: Connection, gameVersion: string): boolean {
-        let status = gameVersion === this.version;
-
+        const status = gameVersion === this.version;
         if (!status) {
             connection.sendUTF8('updated');
-            connection.close(`Wrong client version, expected ${this.version} and received ${gameVersion}.`);
+            connection.close(
+                `Wrong client version, expected ${this.version} and received ${gameVersion}.`,
+            );
         }
 
         return status;
@@ -87,36 +87,32 @@ export default class WebSocket {
 
     /**
      * We add a connection to our dictionary of connections.
-     * 
+     *
      * Key: The connection id.
      * Value: The connection itself.
-     * 
+     *
      * @param connection The connection we are adding.
      */
-
-    add(connection: Connection) {
+    add(connection: Connection): void {
         this.connections[connection.id] = connection;
-
         if (this.connectionCallback) this.connectionCallback(connection);
     }
 
     /**
      * Used to remove connections from our dictionary of connections.
-     * 
+     *
      * @param id The connection id we are removing.
      */
-
-    remove(id: string) {
+    remove(id: string): void {
         delete this.connections[id];
     }
 
     /**
      * Finds and returns a connection in our dictionary of connections.
-     * 
+     *
      * @param id The id of the connection we are trying to get.
      * @returns The connection element or null.
      */
-
     get(id: string): Connection {
         return this.connections[id];
     }
@@ -124,7 +120,6 @@ export default class WebSocket {
     /**
      * @returns A randomly generated id based on counter of connections.
      */
-
     getId(): string {
         return '1' + Utils.random(1000) + this.counter;
     }
@@ -132,22 +127,19 @@ export default class WebSocket {
     /**
      * The callback that the main class uses to determine
      * if the websocket is ready.
-     * 
+     *
      * @param callback The void function callback
      */
-
-    onReady(callback: () => void) {
+    onReady(callback: () => void): void {
         this.readyCallback = callback;
     }
 
     /**
      * The callback for when a new connection is received.
-     * 
+     *
      * @param callback The callback containing the Connection that occurs.
      */
-
-    onConnection(callback: (connection: Connection) => void) {
+    onConnection(callback: (connection: Connection) => void): void {
         this.connectionCallback = callback;
     }
-
 }

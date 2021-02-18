@@ -1,11 +1,8 @@
-/* global module */
-
-import _ from 'lodash';
 import Introduction from '../game/entity/character/player/quests/impl/introduction';
 import BulkySituation from '../game/entity/character/player/quests/impl/bulkysituation';
-import Achievement from '../game/entity/character/player/achievement';
+import Achievement, { AchievementInfo } from '../game/entity/character/player/achievement';
 import Player from '../game/entity/character/player/player';
-import Quest from '../game/entity/character/player/quests/quest';
+import Quest, { QuestInfo } from '../game/entity/character/player/quests/quest';
 import NPC from '../game/entity/npc/npc';
 import Mob from '../game/entity/character/mob/mob';
 
@@ -15,11 +12,11 @@ import AchievementData from '../../data/achievements.json';
 class Quests {
     public player: Player;
 
-    public quests: any;
-    public achievements: any;
+    public quests: { [key: string]: Quest };
+    public achievements: { [key: string]: Achievement };
 
-    questsReadyCallback: Function;
-    achievementsReadyCallback: Function;
+    questsReadyCallback: () => void;
+    achievementsReadyCallback: () => void;
 
     constructor(player: Player) {
         this.player = player;
@@ -30,78 +27,68 @@ class Quests {
         this.load();
     }
 
-    load() {
+    load(): void {
         let questCount = 0;
 
-        _.each(QuestData, (quest) => {
+        Object.values(QuestData).forEach((quest) => {
             if (questCount === 0) this.quests[quest.id] = new Introduction(this.player, quest);
             else if (questCount === 1)
                 this.quests[quest.id] = new BulkySituation(this.player, quest);
-
             questCount++;
         });
 
-        _.each(AchievementData, (achievement) => {
-            this.achievements[achievement.id] = new Achievement(achievement.id, this.player);
+        Object.values(AchievementData).forEach((a) => {
+            this.achievements[a.id] = new Achievement(a.id, this.player);
         });
     }
 
-    updateQuests(ids: any, stages: any) {
+    updateQuests(ids: string[], stages: number[]): void {
         if (!ids || !stages) {
-            _.each(this.quests, (quest: Quest) => {
-                quest.load(0);
-            });
-
+            Object.values(this.quests).forEach((q) => q.load(0));
             return;
         }
 
         for (let id = 0; id < ids.length; id++)
             if (!isNaN(parseInt(ids[id])) && this.quests[id]) this.quests[id].load(stages[id]);
-
         if (this.questsReadyCallback) this.questsReadyCallback();
     }
 
-    updateAchievements(ids: any, progress: any) {
+    updateAchievements(ids: string[], progress: number[]): void {
         for (let id = 0; id < ids.length; id++)
             if (!isNaN(parseInt(ids[id])) && this.achievements[id])
                 this.achievements[id].setProgress(progress[id], true);
-
         if (this.achievementsReadyCallback) this.achievementsReadyCallback();
     }
 
-    getQuest(id: number) {
+    getQuest(id: number): Quest | null {
         if (id in this.quests) return this.quests[id];
-
         return null;
     }
 
-    getAchievement(id: number) {
+    getAchievement(id: number): Achievement | null {
         if (!this.achievements || !this.achievements[id]) return null;
-
         return this.achievements[id];
     }
 
-    getQuests() {
-        let ids = '',
-            stages = '';
+    getQuests(): { username: string; ids: string; stages: string } {
+        let ids = '';
+        let stages = '';
 
         for (let id = 0; id < this.getQuestSize(); id++) {
-            let quest = this.quests[id];
-
             ids += id + ' ';
-            stages += quest.stage + ' ';
+            stages += this.quests[id].stage + ' ';
         }
 
         return {
             username: this.player.username,
             ids: ids,
-            stages: stages
+            stages: stages,
         };
     }
 
-    getAchievements() {
-        let ids = '',
-            progress = '';
+    getAchievements(): { username: string; ids: string; progress: string } {
+        let ids = '';
+        let progress = '';
 
         for (let id = 0; id < this.getAchievementSize(); id++) {
             ids += id + ' ';
@@ -111,172 +98,104 @@ class Quests {
         return {
             username: this.player.username,
             ids: ids,
-            progress: progress
+            progress: progress,
         };
     }
 
-    getAchievementData() {
-        let achievements = [];
-
-        this.forEachAchievement((achievement: Achievement) => {
-            achievements.push(achievement.getInfo());
-        });
-
-        return {
-            achievements: achievements
-        };
+    getAchievementData(): { achievements: AchievementInfo[] } {
+        const achievements = Object.values(this.achievements).map((a) => a.getInfo());
+        return { achievements };
     }
 
-    getQuestData() {
-        let quests = [];
-
-        this.forEachQuest((quest: Quest) => {
-            quests.push(quest.getInfo());
-        });
-
-        return {
-            quests: quests
-        };
+    getQuestData(): { quests: QuestInfo[] } {
+        const quests = Object.values(this.quests).map((q) => q.getInfo());
+        return { quests };
     }
 
-    forEachQuest(callback: Function) {
-        _.each(this.quests, (quest) => {
-            callback(quest);
-        });
+    forEachQuest(callback: (q: Quest) => void): void {
+        Object.values(this.quests).forEach((q) => callback(q));
     }
 
-    forEachAchievement(callback: Function) {
-        _.each(this.achievements, (achievement) => {
-            callback(achievement);
-        });
+    forEachAchievement(callback: (a: Achievement) => void): void {
+        Object.values(this.achievements).forEach((a) => callback(a));
     }
 
-    getQuestsCompleted() {
-        let count = 0;
-
-        for (let id in this.quests)
-            if (this.quests.hasOwnProperty(id)) if (this.quests[id].isFinished()) count++;
-
-        return count;
+    getQuestsCompleted(): number {
+        return Object.values(this.quests).filter((q) => q.isFinished()).length;
     }
 
-    getAchievementsCompleted() {
-        let count = 0;
-
-        for (let id in this.achievements)
-            if (this.achievements.hasOwnProperty(id))
-                if (this.achievements[id].isFinished()) count++;
-
-        return count;
+    getAchievementsCompleted(): number {
+        return Object.values(this.achievements).filter((a) => a.isFinished()).length;
     }
 
-    getQuestSize() {
+    getQuestSize(): number {
         return Object.keys(this.quests).length;
     }
 
-    getAchievementSize() {
+    getAchievementSize(): number {
         return Object.keys(this.achievements).length;
     }
 
-    getQuestByNPC(npc: NPC) {
+    getQuestByNPC(npc: NPC): Quest | null {
         /**
          * Iterate through the quest list in the order it has been
          * added so that NPC's that are required by multiple quests
          * follow the proper order.
          */
-
-        for (let id in this.quests) {
-            if (this.quests.hasOwnProperty(id)) {
-                let quest = this.quests[id];
-
-                if (quest.hasNPC(npc.id)) return quest;
-            }
-        }
-
-        return null;
+        const quest = Object.values(this.quests).find((q) => q.hasNPC(npc.id));
+        return quest || null;
     }
 
-    getAchievementByNPC(npc: NPC) {
-        for (let id in this.achievements)
-            if (this.achievements.hasOwnProperty(id))
-                if (
-                    this.achievements[id].data.npc === npc.id &&
-                    !this.achievements[id].isFinished()
-                )
-                    return this.achievements[id];
-
-        return null;
+    getAchievementByNPC(npc: NPC): Achievement | null {
+        const ach = Object.values(this.achievements).find(
+            (a) => a.data.npc === npc.id && !a.isFinished(),
+        );
+        return ach || null;
     }
 
-    getAchievementByMob(mob: Mob) {
-        for (let id in this.achievements)
-            if (this.achievements.hasOwnProperty(id))
-                if (this.achievements[id].data.mob === mob.id) return this.achievements[id];
-
-        return null;
+    getAchievementByMob(mob: Mob): Achievement | null {
+        const ach = Object.values(this.achievements).find((a) => a.data.mob === mob.id);
+        return ach || null;
     }
 
-    isQuestMob(mob: Mob) {
+    isQuestMob(mob: Mob): boolean {
         if (mob.type !== 'mob') return false;
 
-        for (let id in this.quests) {
-            if (this.quests.hasOwnProperty(id)) {
-                let quest = this.quests[id];
-
-                if (!quest.isFinished() && quest.hasMob(mob.id)) return true;
-            }
+        for (const id in this.quests) {
+            const quest = this.quests[id];
+            if (!quest.isFinished() && quest.hasMob(mob)) return true;
         }
 
         return false;
     }
 
-    isAchievementMob(mob: Mob) {
+    isAchievementMob(mob: Mob): boolean {
         if (mob.type !== 'mob') return false;
-
-        for (let id in this.achievements)
-            if (this.achievements.hasOwnProperty(id))
-                if (
-                    this.achievements[id].data.mob === mob.id &&
-                    !this.achievements[id].isFinished()
-                )
-                    return true;
-
-        return false;
+        const ach = Object.values(this.achievements).find(
+            (a) => a.data.mob === mob.id && !a.isFinished(),
+        );
+        return !!ach;
     }
 
-    isQuestNPC(npc: NPC) {
+    isQuestNPC(npc: NPC): boolean {
         if (npc.type !== 'npc') return false;
-
-        for (let id in this.quests) {
-            if (this.quests.hasOwnProperty(id)) {
-                let quest = this.quests[id];
-
-                if (!quest.isFinished() && quest.hasNPC(npc.id)) return true;
-            }
-        }
-
-        return false;
+        const quest = Object.values(this.quests).find((q) => !q.isFinished() && q.hasNPC(npc.id));
+        return !!quest;
     }
 
-    isAchievementNPC(npc: NPC) {
+    isAchievementNPC(npc: NPC): boolean {
         if (npc.type !== 'npc') return false;
-
-        for (let id in this.achievements)
-            if (this.achievements.hasOwnProperty(id))
-                if (
-                    this.achievements[id].data.npc === npc.id &&
-                    !this.achievements[id].isFinished()
-                )
-                    return true;
-
-        return false;
+        const ach = Object.values(this.achievements).find(
+            (a) => a.data.npc === npc.id && !a.isFinished(),
+        );
+        return !!ach;
     }
 
-    onAchievementsReady(callback: Function) {
+    onAchievementsReady(callback: () => void): void {
         this.achievementsReadyCallback = callback;
     }
 
-    onQuestsReady(callback: Function) {
+    onQuestsReady(callback: () => void): void {
         this.questsReadyCallback = callback;
     }
 }

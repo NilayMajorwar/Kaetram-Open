@@ -8,11 +8,12 @@ import Player from '../game/entity/character/player/player';
 import Utils from '../util/utils';
 import Connection from './connection';
 import config from '../../config';
+import WebSocket from './websocket';
 
 class Network {
     world: World;
     database: MongoDB;
-    socket: any;
+    socket: WebSocket;
     region: Region;
     map: Map;
 
@@ -25,15 +26,13 @@ class Network {
         this.socket = world.socket;
         this.region = world.region;
         this.map = world.map;
-
         this.packets = {};
-
         this.differenceThreshold = 4000;
 
         this.load();
     }
 
-    load() {
+    load(): void {
         this.world.onPlayerConnection((connection: any) => {
             this.handlePlayerConnection(connection);
         });
@@ -43,15 +42,14 @@ class Network {
         });
     }
 
-    parsePackets() {
+    parsePackets(): void {
         /**
          * This parses through the packet pool and sends them
          */
 
-        for (let id in this.packets) {
+        for (const id in this.packets) {
             if (this.packets[id].length > 0 && this.packets.hasOwnProperty(id)) {
-                let conn = this.socket.get(id);
-
+                const conn = this.socket.get(id);
                 if (conn) {
                     conn.send(this.packets[id]);
                     this.packets[id] = [];
@@ -61,19 +59,18 @@ class Network {
         }
     }
 
-    handlePlayerConnection(connection: any) {
-        let clientId = Utils.generateClientId(),
-            player = new Player(this.world, this.database, connection, clientId),
-            timeDifference = new Date().getTime() - this.getSocketTime(connection);
+    handlePlayerConnection(connection: any): void {
+        const clientId = Utils.generateClientId();
+        const player = new Player(this.world, this.database, connection, clientId);
+        const timeDifference = Date.now() - this.getSocketTime(connection);
 
         if (!config.debug && timeDifference < this.differenceThreshold) {
             connection.sendUTF8('toofast');
             connection.close('Logging in too fast.');
-
             return;
         }
 
-        this.socket.ips[connection.socket.conn.remoteAddress] = new Date().getTime();
+        this.socket.ips[connection.socket.conn.remoteAddress] = Date.now();
 
         this.addToPackets(player);
 
@@ -81,16 +78,16 @@ class Network {
             player,
             new Messages.Handshake({
                 id: clientId,
-                development: config.devClient
-            })
+                development: config.devClient,
+            }),
         );
     }
 
-    handlePopulationChange() {
+    handlePopulationChange(): void {
         this.pushBroadcast(new Messages.Population(this.world.getPopulation()));
     }
 
-    addToPackets(player: Player) {
+    addToPackets(player: Player): void {
         this.packets[player.instance] = [];
     }
 
@@ -101,8 +98,7 @@ class Network {
     /**
      * Broadcast a message to everyone in the world.
      */
-
-    pushBroadcast(message: any) {
+    pushBroadcast(message: any): void {
         _.each(this.packets, (packet: any) => {
             packet.push(message.serialize());
         });
@@ -111,18 +107,16 @@ class Network {
     /**
      * Broadcast a message to everyone with exceptions.
      */
-
-    pushSelectively(message: any, ignores?: any) {
+    pushSelectively(message: any, ignores?: any): void {
         _.each(this.packets, (packet: any) => {
-            if (ignores.indexOf(packet.id) < 0) packet.push(message.serialize());
+            if (!ignores || !ignores.includes(packet.id)) packet.push(message.serialize());
         });
     }
 
     /**
      * Push a message to a single player.
      */
-
-    pushToPlayer(player: any, message: any) {
+    pushToPlayer(player: any, message: any): void {
         if (player && player.instance in this.packets)
             this.packets[player.instance].push(message.serialize());
     }
@@ -130,8 +124,7 @@ class Network {
     /**
      * Specify an array of player instances to send message to
      */
-
-    pushToPlayers(players: any, message: any) {
+    pushToPlayers(players: any, message: any): void {
         _.each(players, (instance: string) => {
             this.pushToPlayer(this.world.getPlayerByInstance(instance), message);
         });
@@ -140,10 +133,8 @@ class Network {
     /**
      * Send a message to the region the player is currently in.
      */
-
-    pushToRegion(regionId: string, message: any, ignoreId?: string) {
-        let region = this.region.regions[regionId];
-
+    pushToRegion(regionId: string, message: any, ignoreId?: string): void {
+        const region = this.region.regions[regionId];
         if (!region) return;
 
         _.each(region.players, (instance: string) => {
@@ -158,8 +149,7 @@ class Network {
      * G  P  G
      * G  G  G
      */
-
-    pushToAdjacentRegions(regionId: string, message: any, ignoreId?: any) {
+    pushToAdjacentRegions(regionId: string, message: any, ignoreId?: any): void {
         this.map.regions.forEachSurroundingRegion(regionId, (id: string) => {
             this.pushToRegion(id, message, ignoreId);
         });
@@ -168,11 +158,9 @@ class Network {
     /**
      * Sends a message to an array of player names
      */
-
-    pushToNameArray(names: any, message: any) {
+    pushToNameArray(names: any, message: any): void {
         _.each(names, (name: string) => {
-            let player = this.world.getPlayerByName(name);
-
+            const player = this.world.getPlayerByName(name);
             if (player) this.pushToPlayer(player, message);
         });
     }
@@ -180,8 +168,7 @@ class Network {
     /**
      * Sends a message to the region the player just left from
      */
-
-    pushToOldRegions(player: Player, message: any) {
+    pushToOldRegions(player: Player, message: any): void {
         _.each(player.recentRegions, (id: string) => {
             this.pushToRegion(id, message);
         });
@@ -189,7 +176,7 @@ class Network {
         player.recentRegions = [];
     }
 
-    getSocketTime(connection: Connection) {
+    getSocketTime(connection: Connection): number {
         return this.socket.ips[connection.socket.conn.remoteAddress];
     }
 }

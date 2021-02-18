@@ -1,6 +1,15 @@
-/* global module */
-
 import Entity from '../entity';
+
+export type ProjectileState = {
+    id: string;
+    name: string;
+    characterId: number;
+    targetId: string;
+    damage: number;
+    special: any;
+    hitType: any;
+    type: string;
+};
 
 class Projectile extends Entity {
     startX: number;
@@ -29,15 +38,12 @@ class Projectile extends Entity {
         this.destY = -1;
 
         this.target = null;
-
         this.damage = -1;
-
         this.hitType = null;
-
         this.owner = null;
     }
 
-    setStart(x: number, y: number) {
+    setStart(x: number, y: number): void {
         this.x = x;
         this.y = y;
     }
@@ -46,21 +52,19 @@ class Projectile extends Entity {
      * TODO - Merge setTarget() && setStaticTarget into one function.
      */
 
-    setTarget(target: Entity) {
+    setTarget(target: Entity): void {
         this.target = target;
-
         this.destX = target.x;
         this.destY = target.y;
     }
 
-    setStaticTarget(x: number, y: number) {
+    setStaticTarget(x: number, y: number): void {
         this.static = true;
-
         this.destX = x;
         this.destY = y;
     }
 
-    getData() {
+    getData(): ProjectileState {
         /**
          * Refrain from creating a projectile unless
          * an owner and a target are available.
@@ -76,7 +80,7 @@ class Projectile extends Entity {
             damage: this.damage,
             special: this.special,
             hitType: this.hitType,
-            type: this.type
+            type: this.type,
         };
     }
 }

@@ -8,113 +8,85 @@ class SkeletonKing extends Combat {
     /**
      * First of its kind, the Skeleton King will spawn 4 minions.
      * Two sorcerers on (x + 1, y + 1) & (x - 1, y + 1)
-     *
      * And two death knights on (x + 1, y - 1) & (x - 1, y - 1)
      */
 
     lastSpawn: number;
-    minions: Array<any>;
+    minions: Array<Mob>;
 
     constructor(character: Mob) {
         character.spawnDistance = 10;
         super(character);
 
-        const self = this;
+        this.lastSpawn = 0;
+        this.minions = [];
 
-        self.lastSpawn = 0;
-
-        self.minions = [];
-
-        character.onDeath(() => {
-            self.reset();
-        });
+        character.onDeath(this.reset);
     }
 
-    reset() {
-        const self = this;
-
-        self.lastSpawn = 0;
-
-        const listCopy = self.minions.slice();
-
-        for (let i = 0; i < listCopy.length; i++) self.world.kill(listCopy[i]);
+    reset(): void {
+        this.lastSpawn = 0;
+        // TODO: Cleanup?
+        const listCopy = this.minions.slice();
+        for (let i = 0; i < listCopy.length; i++) this.world.kill(listCopy[i]);
     }
 
-    hit(character: Character, target: Character, hitInfo: any) {
-        const self = this;
-
-        if (self.isAttacked()) self.beginMinionAttack();
-
-        if (self.canSpawn()) self.spawnMinions();
-
+    hit(character: Character, target: Character, hitInfo: any): void {
+        if (this.isAttacked()) this.beginMinionAttack();
+        if (this.canSpawn()) this.spawnMinions();
         super.hit(character, target, hitInfo);
     }
 
-    spawnMinions() {
-        const self = this,
-            x = self.character.x,
-            y = self.character.y;
+    spawnMinions(): void {
+        const x = this.character.x;
+        const y = this.character.y;
 
-        self.lastSpawn = new Date().getTime();
+        this.lastSpawn = Date.now();
+        if (!this.colliding(x + 2, y - 2)) this.minions.push(this.world.spawnMob(17, x + 2, y + 2));
+        if (!this.colliding(x - 2, y - 2)) this.minions.push(this.world.spawnMob(17, x - 2, y + 2));
+        if (!this.colliding(x + 1, y + 1)) this.minions.push(this.world.spawnMob(11, x + 1, y - 1));
+        if (!this.colliding(x - 1, y + 1)) this.minions.push(this.world.spawnMob(11, x - 1, y - 1));
 
-        if (!self.colliding(x + 2, y - 2)) self.minions.push(self.world.spawnMob(17, x + 2, y + 2));
-
-        if (!self.colliding(x - 2, y - 2)) self.minions.push(self.world.spawnMob(17, x - 2, y + 2));
-
-        if (!self.colliding(x + 1, y + 1)) self.minions.push(self.world.spawnMob(11, x + 1, y - 1));
-
-        if (!self.colliding(x - 1, y + 1)) self.minions.push(self.world.spawnMob(11, x - 1, y - 1));
-
-        _.each(self.minions, (minion: Mob) => {
+        _.each(this.minions, (minion: Mob) => {
             minion.onDeath(() => {
-                if (self.isLast()) self.lastSpawn = new Date().getTime();
-
-                self.minions.splice(self.minions.indexOf(minion), 1);
+                if (this.isLast()) this.lastSpawn = Date.now();
+                this.minions.splice(this.minions.indexOf(minion), 1);
             });
 
-            if (self.isAttacked()) self.beginMinionAttack();
+            if (this.isAttacked()) this.beginMinionAttack();
         });
     }
 
-    beginMinionAttack() {
-        const self = this;
+    beginMinionAttack(): void {
+        if (!this.hasMinions()) return;
 
-        if (!self.hasMinions()) return;
-
-        _.each(self.minions, (minion: Mob) => {
-            const randomTarget = self.getRandomTarget();
-
+        _.each(this.minions, (minion: Mob) => {
+            const randomTarget = this.getRandomTarget();
             if (!minion.hasTarget() && randomTarget) minion.combat.begin(randomTarget);
         });
     }
 
     getRandomTarget() {
-        const self = this;
-
-        if (self.isAttacked()) {
-            const keys = Object.keys(self.attackers),
-                randomAttacker = self.attackers[keys[Utils.randomInt(0, keys.length)]];
-
+        if (this.isAttacked()) {
+            const keys = Object.keys(this.attackers);
+            const randomAttacker = this.attackers[keys[Utils.randomInt(0, keys.length)]];
             if (randomAttacker) return randomAttacker;
         }
 
-        if (self.character.hasTarget()) return self.character.target;
-
+        if (this.character.hasTarget()) return this.character.target;
         return null;
     }
 
-    hasMinions() {
+    hasMinions(): boolean {
         return this.minions.length > 0;
     }
 
-    isLast() {
+    isLast(): boolean {
         return this.minions.length === 1;
     }
 
-    canSpawn() {
-        return (
-            new Date().getTime() - this.lastSpawn > 25000 && !this.hasMinions() && this.isAttacked()
-        );
+    canSpawn(): boolean {
+        return Date.now() - this.lastSpawn > 25000 && !this.hasMinions() && this.isAttacked();
     }
 }
 

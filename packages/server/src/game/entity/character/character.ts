@@ -1,8 +1,13 @@
-import Entity from '../entity';
+import Entity, { EntityState } from '../entity';
 import Modules from '../../../util/modules';
 import Mobs from '../../../util/mobs';
 import Combat from './combat/combat';
 import log from '../../../util/log';
+import Hit, { HitData } from './combat/hit';
+
+export interface CharacterState extends EntityState {
+    movementSpeed: number;
+}
 
 class Character extends Entity {
     public level: number;
@@ -26,31 +31,31 @@ class Character extends Entity {
     public target: any; // TODO
     public potentialTarget: any; // TODO
 
-    stunTimeout: any;
+    stunTimeout: NodeJS.Timeout | null;
 
     public projectile: any;
     public projectileName: string;
 
-    healingInterval: any;
+    healingInterval: NodeJS.Timeout | null;
     updated: boolean;
 
     public weaponLevel: number;
     public armourLevel: number;
     public stunned: boolean;
 
-    stunCallback: Function;
-    hitCallback: Function;
-    damagedCallback: Function;
-    movementCallback: Function;
-    targetCallback: Function;
-    hitPointsCallback: Function;
-    poisonCallback: Function;
-    removeTargetCallback: Function;
-    healthChangeCallback: Function;
-    damageCallback: Function;
-    subAoECallback: Function;
-    deathCallback: Function;
-    onReturn: Function;
+    stunCallback: (stun: boolean) => void;
+    hitCallback: (attacker: Character, damage?: number) => void;
+    damagedCallback: (damage: number, attacker?: Character) => void;
+    movementCallback: (x: number, y: number) => void;
+    targetCallback: (target: any) => void;
+    hitPointsCallback: () => void;
+    poisonCallback: (poison: string) => void;
+    removeTargetCallback: () => void;
+    healthChangeCallback: () => void;
+    damageCallback: (target: Character, hitInfo: HitData) => void;
+    subAoECallback: (radius: number, hasTerror: boolean) => void;
+    deathCallback: () => void;
+    returnCallback: () => void;
 
     moving: boolean;
     lastMovement: number;
@@ -108,18 +113,13 @@ class Character extends Entity {
         this.startHealing();
     }
 
-    loadCombat() {
-        /**
-         * Ternary could be used here, but readability
-         * would become nonexistent.
-         */
-
-        if (Mobs.hasCombatPlugin(this.id))
-            this.combat = new (Mobs.isNewCombatPlugin(this.id))(this);
-        else this.combat = new Combat(this);
+    loadCombat(): void {
+        this.combat = Mobs.hasCombatPlugin(this.id)
+            ? new (Mobs.isNewCombatPlugin(this.id))(this)
+            : new Combat(this);
     }
 
-    setMinibossData() {
+    setMinibossData(): void {
         /* We only update the mob data once to prevent any issues. */
 
         if (this.updated) return;
@@ -133,93 +133,83 @@ class Character extends Entity {
         this.updated = true;
     }
 
-    startHealing() {
+    startHealing(): void {
         this.healingInterval = setInterval(() => {
             if (this.dead) return;
-
             if (this.combat.started) return;
-
             if (this.poison) return;
-
             this.heal(1);
         }, this.healingRate);
     }
 
-    stopHealing() {
+    stopHealing(): void {
         clearInterval(this.healingInterval);
         this.healingInterval = null;
     }
 
-    setStun(stun: boolean) {
+    setStun(stun: boolean): void {
         this.stunned = stun;
-
         if (this.stunCallback) this.stunCallback(stun);
     }
 
-    hit(attacker: Entity) {
-        if (this.hitCallback) this.hitCallback(attacker);
+    hit(attacker: Character, damage?: number): void {
+        if (this.hitCallback) this.hitCallback(attacker, damage);
     }
 
-    heal(amount: number) {
+    heal(amount: number): void {
         this.setHitPoints(this.hitPoints + amount);
-
         if (this.hitPoints >= this.maxHitPoints) this.hitPoints = this.maxHitPoints;
     }
 
-    isRanged() {
+    isRanged(): boolean {
         return this.attackRange > 1;
     }
 
-    applyDamage(damage: number, attacker?: Character) {
+    applyDamage(damage: number, attacker?: Character): void {
         this.hitPoints -= damage;
-
         if (this.damagedCallback) this.damagedCallback(damage, attacker);
     }
 
-    isDead() {
+    isDead(): boolean {
         return this.hitPoints < 1 || this.dead;
     }
 
-    getCombat() {
+    getCombat(): Combat {
         return this.combat;
     }
 
-    getHitPoints() {
+    getHitPoints(): number {
         return this.hitPoints;
     }
 
-    getMaxHitPoints() {
+    getMaxHitPoints(): number {
         return this.maxHitPoints;
     }
 
-    setPosition(x: number, y: number) {
+    setPosition(x: number, y: number): void {
         this.previousX = this.x;
         this.previousY = this.y;
-
         super.setPosition(x, y);
 
         if (this.movementCallback) this.movementCallback(x, y);
     }
 
-    setTarget(target: any) {
+    setTarget(target: any): void {
         this.target = target;
-
         if (this.targetCallback) this.targetCallback(target);
     }
 
-    setPotentialTarget(potentialTarget: any) {
+    setPotentialTarget(potentialTarget: any): void {
         this.potentialTarget = potentialTarget;
     }
 
-    setHitPoints(hitPoints: number) {
+    setHitPoints(hitPoints: number): void {
         this.hitPoints = hitPoints;
-
         if (this.hitPointsCallback) this.hitPointsCallback();
     }
 
-    setPoison(poison: string) {
+    setPoison(poison: string): void {
         this.poison = poison;
-
         if (this.poisonCallback) this.poisonCallback(poison);
     }
 
@@ -227,7 +217,7 @@ class Character extends Entity {
         return this.projectile;
     }
 
-    getProjectileName() {
+    getProjectileName(): string {
         return this.projectileName;
     }
 
@@ -235,124 +225,121 @@ class Character extends Entity {
         return null;
     }
 
-    getWeaponLevel() {
+    getWeaponLevel(): number {
         return this.weaponLevel;
     }
 
-    getArmourLevel() {
+    getArmourLevel(): number {
         return this.armourLevel;
     }
 
-    getState() {
-        let state = super.getState();
-
+    getState(): CharacterState {
+        const state = super.getState() as CharacterState;
         state.movementSpeed = this.movementSpeed;
-
         return state;
     }
 
-    hasMaxHitPoitns() {
+    hasMaxHitPoints(): boolean {
         return this.hitPoints >= this.maxHitPoints;
     }
 
     /* Uninitialized Functions */
 
-    hasBreakableWeapon() {
+    hasBreakableWeapon(): boolean {
         return false;
     }
 
-    breakWeapon() {}
+    breakWeapon(): void {}
 
-    return() {}
+    return(): void {}
 
-    destroy() {}
+    destroy(): void {}
 
-    die() {}
+    die(): void {}
 
-    getHit(target?: any): any {
+    getHit(target?: Character): Hit {
+        // @ts-ignore Unimplemented
         return `uninitialized ${target.instance}`;
     }
 
-    finishAchievement(id: number): any {
+    finishAchievement(id: number): void {
+        // @ts-ignore Unimplemented
         return `uninitialized achievementId: ${id}`;
     }
 
-    addExperience(exp: number) {
+    addExperience(exp: number): void {
         log.debug(`Unimplemented \`addExperience\` ${exp}`);
     }
 
     canAggro(character: Character): boolean {
         log.debug(`Can ${this.instance} aggro ${character.instance}`);
-
         return false;
     }
 
-    killCharacter(character: Character): any {
+    killCharacter(character: Character): void {
         log.debug(`Uninitialized \`killCharacter\` for ${character.instance}.`);
     }
 
     /*********************/
 
-    removeTarget() {
+    removeTarget(): void {
         if (this.removeTargetCallback) this.removeTargetCallback();
-
         this.clearTarget();
     }
 
-    hasTarget() {
+    hasTarget(): boolean {
         return !(this.target === null);
     }
 
-    hasPotentialTarget(potentialTarget: any) {
+    hasPotentialTarget(potentialTarget: any): boolean {
         return this.potentialTarget === potentialTarget;
     }
 
-    clearTarget() {
+    clearTarget(): void {
         this.target = null;
     }
 
-    onTarget(callback: Function) {
+    onTarget(callback: (target: any) => void): void {
         this.targetCallback = callback;
     }
 
-    onRemoveTarget(callback: Function) {
+    onRemoveTarget(callback: () => void): void {
         this.removeTargetCallback = callback;
     }
 
-    onMovement(callback: Function) {
+    onMovement(callback: (x: number, y: number) => void): void {
         this.movementCallback = callback;
     }
 
-    onHit(callback: Function) {
+    onHit(callback: (attacker: Entity, damage?: number) => void): void {
         this.hitCallback = callback;
     }
 
-    onHealthChange(callback: Function) {
+    onHealthChange(callback: () => void): void {
         this.healthChangeCallback = callback;
     }
 
-    onDamage(callback: Function) {
+    onDamage(callback: (target: Character, hitInfo: HitData) => void): void {
         this.damageCallback = callback;
     }
 
-    onDamaged(callback: Function) {
-        // When the entity gets hit.
+    onDamaged(callback: (damage: number, attacker?: Character) => void): void {
         this.damagedCallback = callback;
     }
 
-    onStunned(callback: Function) {
+    onStunned(callback: (stun: boolean) => void): void {
         this.stunCallback = callback;
     }
 
-    onSubAoE(callback: Function) {
+    onSubAoE(callback: (radius: number, hasTerror: boolean) => void): void {
         this.subAoECallback = callback;
     }
 
-    onPoison(callback: Function) {
+    onPoison(callback: (poison: string) => void): void {
         this.poisonCallback = callback;
     }
 
-    onDeath(callback: Function) {
+    onDeath(callback: () => void): void {
         this.deathCallback = callback;
     }
 }

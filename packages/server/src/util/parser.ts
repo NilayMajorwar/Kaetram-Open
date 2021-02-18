@@ -68,11 +68,10 @@ class Parser {
                 projectileName: value.projectileName || null,
                 spawnDelay: value.spawnDelay || 60000,
                 combatPlugin: value.combatPlugin || null,
-                hiddenName: value.hiddenName || false
+                hiddenName: value.hiddenName || false,
             };
 
             Mobs.Ids[value.id] = Mobs.Properties[key];
-
             mobCounter++;
         });
 
@@ -90,11 +89,10 @@ class Parser {
                 id: value.id,
                 name: value.name || key,
                 text: value.text || null,
-                type: value.type || null
+                type: value.type || null,
             };
 
             NPCs.Ids[value.id] = NPCs.Properties[key];
-
             npcCounter++;
         });
 
@@ -129,13 +127,11 @@ class Parser {
                 customData: value.customData || null,
                 requirement: value.requirement || null,
                 lumberjacking: value.lumberjacking || 0,
-                mining: value.mining || 0
+                mining: value.mining || 0,
             };
 
             Items.Ids[value.id] = Items.Data[key];
-
             if (value.plugin) Items.Plugins[value.id] = itemPlugins[value.plugin];
-
             itemCounter++;
         });
 
@@ -153,11 +149,10 @@ class Parser {
                 id: value.id,
                 type: value.type,
                 mana: value.mana || 0,
-                cooldown: value.cooldown || null
+                cooldown: value.cooldown || null,
             };
 
             Abilities.Ids[value.id] = Abilities.Data[key];
-
             skillCounter++;
         });
 
@@ -178,11 +173,10 @@ class Parser {
                 originalCount: value.count,
                 prices: value.prices,
                 currency: value.currency,
-                stockDuration: value.stockDuration
+                stockDuration: value.stockDuration,
             };
 
             Shops.Ids[value.npcId] = Shops.Data[key];
-
             shopCounter++;
         });
 
@@ -232,14 +226,13 @@ class Parser {
                 y: value.y,
                 type: value.type,
                 messages: value.messages,
-                cursor: value.cursor
+                cursor: value.cursor,
             };
 
             objectCounter++;
         });
 
         log.info('Finished loading ' + objectCounter + ' global objects.');
-
         if (this.readyCallback) this.readyCallback();
     }
 

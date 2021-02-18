@@ -1,9 +1,4 @@
-import _ from 'lodash';
 import Profession from './profession';
-import Packets from '../../../../../../network/packets';
-import Messages from '../../../../../../network/messages';
-import Modules from '../../../../../../util/modules';
-import Formulas from '../../../../../../util/formulas';
 import Utils from '../../../../../../util/utils';
 import Rocks from '../../../../../../../data/professions/rocks';
 import Player from '../../player';
@@ -11,7 +6,7 @@ import Player from '../../player';
 class Mining extends Profession {
     tick: number;
 
-    miningInterval: any;
+    miningInterval: NodeJS.Timeout | null;
     started: boolean;
 
     rockId: any;
@@ -25,18 +20,17 @@ class Mining extends Profession {
         this.started = false;
     }
 
-    start() {
+    start(): void {
         if (this.started) return;
 
         this.miningInterval = setInterval(() => {
-            try {
-            } catch (e) {}
+            // TODO: Implement this
         }, this.tick);
 
         this.started = true;
     }
 
-    stop() {
+    stop(): void {
         if (!this.started) return;
 
         this.rockId = null;
@@ -49,7 +43,7 @@ class Mining extends Profession {
     }
 
     // TODO
-    handle(id: any, rockId: any) {
+    handle(id: any, rockId: any): void {
         if (!this.player.hasMiningWeapon()) {
             this.player.notify('You do not have a pickaxe to mine this rock with.');
             return;
@@ -60,7 +54,7 @@ class Mining extends Profession {
 
         if (this.level < Rocks.Levels[this.rockId]) {
             this.player.notify(
-                `You must be at least level ${Rocks.Levels[this.rockId]} to mine this rock.`
+                `You must be at least level ${Rocks.Levels[this.rockId]} to mine this rock.`,
             );
             return;
         }
@@ -68,7 +62,7 @@ class Mining extends Profession {
         this.start();
     }
 
-    getRockDestroyChance() {
+    getRockDestroyChance(): boolean {
         return Utils.randomInt(0, Rocks.Chances[this.rockId]) === 2;
     }
 }

@@ -1,12 +1,10 @@
-/* global module */
-
 import _ from 'lodash';
 
 export default {
     Data: {},
     Ids: {},
 
-    isShopNPC(npcId: number) {
+    isShopNPC(npcId: number): boolean {
         return npcId in this.Ids;
     },
 
@@ -18,73 +16,53 @@ export default {
         return this.Data[shopId].npcId;
     },
 
-    getItemCount(id: number) {
+    getItemCount(id: number): number {
         return this.getItems(id).length;
     },
 
-    increment(npcId: number, itemId: number, count: number) {
-        let shop = this.Ids[npcId],
-            index = shop.items.indexOf(itemId);
-
+    increment(npcId: number, itemId: number, count: number): void {
+        const shop = this.Ids[npcId];
+        const index = shop.items.indexOf(itemId);
         if (index < 0) return;
-
         shop.count[index] += count;
     },
 
-    decrement(npcId: number, buyId: number, count: number) {
-        let shop = this.Ids[npcId];
-
+    decrement(npcId: number, buyId: number, count: number): void {
+        const shop = this.Ids[npcId];
         if (!buyId || buyId < 0) return;
-
         shop.count[buyId] -= count;
-
         if (shop.count[buyId] < 0) shop.count[buyId] = 0;
     },
 
-    getCost(npcId: number, buyId: number, count: number) {
-        /**
-         * Reason for the shopId variable is because some shops
-         * may have different prices for the same item. A way to
-         * spice up the game.
-         */
-
-        let shop = this.Ids[npcId];
-
+    getCost(npcId: number, buyId: number, count: number): number {
+        // Reason for the shopId variable is because some shops
+        // may have different prices for the same item. A way to
+        // spice up the game.
+        const shop = this.Ids[npcId];
         if (!shop || buyId < 0) return 2;
-
         return shop.prices[buyId] * count;
     },
 
     getStock(npcId: number, buyId: number) {
-        let shop = this.Ids[npcId];
-
+        const shop = this.Ids[npcId];
         if (!shop || !buyId || buyId < 0) return null;
-
         return shop.count[buyId];
     },
 
     getOriginalStock(shopId: number, buyId: number) {
-        let shop = this.Ids[shopId];
-
+        const shop = this.Ids[shopId];
         if (!buyId || buyId < 0) return;
-
         return shop.originalCount[buyId];
     },
 
-    getCount(npcId: number) {
-        let count = this.Ids[npcId].count,
-            counts = [];
-
+    getCount(npcId: number): number[] {
+        const count = this.Ids[npcId].count;
         if (_.isArray(count)) return count;
-
-        for (let i = 0; i < this.getItemCount(npcId); i++) counts.push(count);
-
-        return counts;
+        return Array.from<number>({ length: this.getItemCount(npcId) }).fill(count);
     },
 
     getItem(npcId: number, buyId: number) {
         if (!buyId || buyId < 0) return;
-
         return this.Ids[npcId].items[buyId];
-    }
+    },
 };

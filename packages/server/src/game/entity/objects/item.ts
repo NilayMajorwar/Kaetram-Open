@@ -1,6 +1,10 @@
-/* global module */
+import Entity, { EntityState } from '../entity';
 
-import Entity from '../entity';
+export interface ItemState extends EntityState {
+    count: number;
+    ability: number;
+    abilityLevel: number;
+}
 
 class Item extends Entity {
     static: boolean;
@@ -17,12 +21,12 @@ class Item extends Entity {
     blinkDelay: number;
     despawnDelay: number;
 
-    blinkTimeout: any;
-    despawnTimeout: any;
+    blinkTimeout: NodeJS.Timeout | null;
+    despawnTimeout: NodeJS.Timeout | null;
 
-    blinkCallback: Function;
-    respawnCallback: Function;
-    despawnCallback: Function;
+    blinkCallback: () => void;
+    respawnCallback: () => void;
+    despawnCallback: () => void;
 
     constructor(
         id: number,
@@ -30,7 +34,7 @@ class Item extends Entity {
         x: number,
         y: number,
         ability?: number,
-        abilityLevel?: number
+        abilityLevel?: number,
     ) {
         super(id, 'item', instance, x, y);
 
@@ -44,7 +48,6 @@ class Item extends Entity {
         this.tier = 1;
 
         if (isNaN(ability)) this.ability = -1;
-
         if (isNaN(abilityLevel)) this.abilityLevel = -1;
 
         this.respawnTime = 30000;
@@ -56,15 +59,13 @@ class Item extends Entity {
         this.despawnTimeout = null;
     }
 
-    destroy() {
+    destroy(): void {
         if (this.blinkTimeout) clearTimeout(this.blinkTimeout);
-
         if (this.despawnTimeout) clearTimeout(this.despawnTimeout);
-
         if (this.static) this.respawn();
     }
 
-    despawn() {
+    despawn(): void {
         this.blinkTimeout = setTimeout(() => {
             if (this.blinkCallback) this.blinkCallback();
 
@@ -74,47 +75,45 @@ class Item extends Entity {
         }, this.blinkDelay);
     }
 
-    respawn() {
+    respawn(): void {
         setTimeout(() => {
             if (this.respawnCallback) this.respawnCallback();
         }, this.respawnTime);
     }
 
-    getData() {
+    getData(): [number, number, number, number] {
         return [this.id, this.count, this.ability, this.abilityLevel];
     }
 
-    getState() {
-        let state = super.getState();
-
+    getState(): ItemState {
+        const state = super.getState() as ItemState;
         state.count = this.count;
         state.ability = this.ability;
         state.abilityLevel = this.abilityLevel;
-
         return state;
     }
 
-    setCount(count: number) {
+    setCount(count: number): void {
         this.count = count;
     }
 
-    setAbility(ability: number) {
+    setAbility(ability: number): void {
         this.ability = ability;
     }
 
-    setAbilityLevel(abilityLevel: number) {
+    setAbilityLevel(abilityLevel: number): void {
         this.abilityLevel = abilityLevel;
     }
 
-    onRespawn(callback: Function) {
+    onRespawn(callback: () => void): void {
         this.respawnCallback = callback;
     }
 
-    onBlink(callback: Function) {
+    onBlink(callback: () => void): void {
         this.blinkCallback = callback;
     }
 
-    onDespawn(callback: Function) {
+    onDespawn(callback: () => void): void {
         this.despawnCallback = callback;
     }
 }

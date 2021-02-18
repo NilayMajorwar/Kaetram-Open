@@ -7,13 +7,14 @@ class BuildUp {
 
     constructor(player: Player) {
         this.player = player;
-
         this.effects = {}; // The buildup effects
     }
 
-    process() {}
+    process() {
+        // TODO: Implement this?
+    }
 
-    send(opcode: number, info: any) {
+    send(opcode: number, info: any): void {
         this.player.send(new Messages.BuildUp(opcode, info));
     }
 }

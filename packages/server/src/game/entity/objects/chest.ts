@@ -1,5 +1,3 @@
-/* global module */
-
 import Entity from '../entity';
 import Player from '../character/player/player';
 import Utils from '../../../util/utils';
@@ -8,11 +6,11 @@ class Chest extends Entity {
     respawnDuration: number;
     static: boolean;
 
-    items: any;
+    items: Array<string>;
     achievement: string;
 
-    openCallback: Function;
-    respawnCallback: Function;
+    openCallback: (player?: Player) => void;
+    respawnCallback: () => void;
 
     constructor(id: number, instance: string, x: number, y: number, achievement?: string) {
         super(id, 'chest', instance, x, y);
@@ -21,28 +19,27 @@ class Chest extends Entity {
         this.static = false;
 
         this.achievement = achievement;
-
         this.items = [];
     }
 
-    openChest(player?: Player) {
+    openChest(player?: Player): void {
         if (this.openCallback) this.openCallback(player);
     }
 
-    respawn() {
+    respawn(): void {
         setTimeout(() => {
             if (this.respawnCallback) this.respawnCallback();
         }, this.respawnDuration);
     }
 
-    getItem() {
-        let random = Utils.randomInt(0, this.items.length - 1),
-            item = this.items[random],
-            count = 1,
-            probability = 100;
+    getItem(): { string: string; count: number } | null {
+        const random = Utils.randomInt(0, this.items.length - 1);
+        let item = this.items[random];
+        let count = 1;
+        let probability = 100;
 
         if (item.includes(':')) {
-            let itemData = item.split(':');
+            const itemData = item.split(':');
 
             item = itemData.shift(); // name
             count = parseInt(itemData.shift()); // count
@@ -54,20 +51,19 @@ class Chest extends Entity {
          * to avoid any unforeseen circumstances.
          */
         if (!item) return null;
-
         if (Utils.randomInt(0, 100) > probability) return null;
 
         return {
             string: item,
-            count: count
+            count: count,
         };
     }
 
-    onOpen(callback: Function) {
+    onOpen(callback: (player?: Player) => void): void {
         this.openCallback = callback;
     }
 
-    onRespawn(callback: Function) {
+    onRespawn(callback: () => void): void {
         this.respawnCallback = callback;
     }
 }

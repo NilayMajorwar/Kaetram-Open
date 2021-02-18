@@ -1,5 +1,3 @@
-/* global module */
-
 export default {
     Properties: {},
     Ids: {},
@@ -7,19 +5,16 @@ export default {
 
     idToString(id: number) {
         if (id in this.Ids) return this.Ids[id].key;
-
         return null;
     },
 
     idToName(id: number) {
         if (id in this.Ids) return this.Ids[id].name;
-
         return null;
     },
 
     getXp(id: number) {
         if (id in this.Ids) return this.Ids[id].xp;
-
         return -1;
     },
 
@@ -34,5 +29,5 @@ export default {
     isNewCombatPlugin(id: number) {
         if (id in this.Ids && this.Ids[id].combatPlugin in this.Plugins)
             return this.Plugins[this.Ids[id].combatPlugin];
-    }
+    },
 };

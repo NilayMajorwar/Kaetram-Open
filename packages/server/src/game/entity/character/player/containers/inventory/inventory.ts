@@ -1,6 +1,3 @@
-/* global module */
-
-import _ from 'lodash';
 import Container from '../container';
 import Messages from '../../../../../../network/messages';
 import Packets from '../../../../../../network/packets';
@@ -16,54 +13,47 @@ class Inventory extends Container {
         ids: Array<number>,
         counts: Array<number>,
         abilities: Array<number>,
-        abilityLevels: Array<number>
-    ) {
+        abilityLevels: Array<number>,
+    ): void {
         super.load(ids, counts, abilities, abilityLevels);
-
         this.owner.send(
-            new Messages.Inventory(Packets.InventoryOpcode.Batch, [this.size, this.slots])
+            new Messages.Inventory(Packets.InventoryOpcode.Batch, [this.size, this.slots]),
         );
     }
 
-    add(item: any) {
+    // @ts-ignore
+    add(item: any): boolean {
         if (!this.canHold(item.id, item.count)) {
             this.owner.send(
                 new Messages.Notification(Packets.NotificationOpcode.Text, {
-                    message: Constants.InventoryFull
-                })
+                    message: Constants.InventoryFull,
+                }),
             );
             return false;
         }
 
-        let slot = super.add(item.id, item.count, item.ability, item.abilityLevel);
-
+        const slot = super.add(item.id, item.count, item.ability, item.abilityLevel);
         if (!slot) return false;
 
         this.owner.send(new Messages.Inventory(Packets.InventoryOpcode.Add, slot));
-
         this.owner.save();
 
         if (item.instance) this.owner.world.removeItem(item);
-
         return true;
     }
 
-    remove(id: number, count: number, index?: number) {
+    remove(id: number, count: number, index?: number): boolean {
         if (!id || !count) return false;
-
         if (!index) index = this.getIndex(id);
-
         if (!super.remove(index, id, count)) return false;
 
         this.owner.send(
             new Messages.Inventory(Packets.InventoryOpcode.Remove, {
                 index: index,
-                count: count
-            })
+                count: count,
+            }),
         );
-
         this.owner.save();
-
         return true;
     }
 }

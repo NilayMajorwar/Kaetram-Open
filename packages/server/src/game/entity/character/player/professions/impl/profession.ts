@@ -8,6 +8,15 @@ import World from '../../../../../world';
 import Map from '../../../../../../map/map';
 import Region from '../../../../../../region/region';
 
+export interface ProfessionState {
+    experience: number;
+}
+
+/**
+ * Base class for player professions.
+ *
+ * TODO: Convert to abstract class?
+ */
 class Profession {
     public id: number;
     public player: Player;
@@ -42,7 +51,7 @@ class Profession {
         this.targetId = null;
     }
 
-    load(data: any) {
+    load(data: any): void {
         this.experience = data.experience;
 
         this.level = Formulas.expToLevel(this.experience);
@@ -51,11 +60,10 @@ class Profession {
         this.prevExperience = Formulas.prevExp(this.experience);
     }
 
-    addExperience(experience: number) {
+    addExperience(experience: number): void {
         this.experience += experience;
 
-        let oldLevel = this.level;
-
+        const oldLevel = this.level;
         this.level = Formulas.expToLevel(this.experience);
 
         this.nextExperience = Formulas.nextExp(this.experience);
@@ -65,64 +73,61 @@ class Profession {
             this.player.popup(
                 'Profession Level Up!',
                 `Congratulations, your ${this.name} level is now ${this.level}.`,
-                '#9933ff'
+                '#9933ff',
             );
 
         this.player.send(
             new Messages.Experience(Packets.ExperienceOpcode.Profession, {
                 id: this.player.instance,
-                amount: experience
-            })
+                amount: experience,
+            }),
         );
 
         this.player.send(
             new Messages.Profession(Packets.ProfessionOpcode.Update, {
                 id: this.id,
                 level: this.level,
-                percentage: this.getPercentage()
-            })
+                percentage: this.getPercentage(),
+            }),
         );
 
         this.player.save();
     }
 
-    stop(): any {
-        return 'Not implemented.';
+    stop(): void {
+        throw new Error('Not implemented');
     }
 
-    getLevel() {
+    getLevel(): number {
         let level = Formulas.expToLevel(this.experience);
-
         if (level > Constants.MAX_PROFESSION_LEVEL) level = Constants.MAX_PROFESSION_LEVEL;
-
         return level;
     }
 
-    sync() {
+    sync(): void {
         this.player.sendToAdjacentRegions(
             this.player.region,
             new Messages.Sync({
                 id: this.player.instance,
-                orientation: this.getOrientation()
-            })
+                orientation: this.getOrientation(),
+            }),
         );
     }
 
-    isTarget() {
+    isTarget(): boolean {
         return this.player.target === this.targetId;
     }
 
-    getPercentage() {
-        let experience = this.experience - this.prevExperience,
-            nextExperience = this.nextExperience - this.prevExperience;
-
+    getPercentage(): string {
+        const experience = this.experience - this.prevExperience;
+        const nextExperience = this.nextExperience - this.prevExperience;
         return ((experience / nextExperience) * 100).toFixed(2);
     }
 
-    getOrientation() {
+    getOrientation(): number {
         if (!this.targetId) return Modules.Orientation.Up;
 
-        let position = this.map.idToPosition(this.targetId);
+        const position = this.map.idToPosition(this.targetId);
 
         if (position.x > this.player.x) return Modules.Orientation.Right;
         else if (position.x < this.player.x) return Modules.Orientation.Left;
@@ -131,9 +136,9 @@ class Profession {
         return Modules.Orientation.Up;
     }
 
-    getData() {
+    getData(): ProfessionState {
         return {
-            experience: this.experience
+            experience: this.experience,
         };
     }
 }

@@ -1,5 +1,3 @@
-/* global module */
-
 import Quest from '../quest';
 import Player from '../../player';
 import NPC from '../../../../npc/npc';
@@ -9,7 +7,7 @@ import Messages from '../../../../../../network/messages';
 
 class Introduction extends Quest {
     lastNPC: NPC;
-    finishedCallback: Function;
+    finishedCallback: () => void;
 
     constructor(player: Player, data: any) {
         super(player, data);
@@ -20,7 +18,7 @@ class Introduction extends Quest {
         this.lastNPC = null;
     }
 
-    load(stage: number) {
+    load(stage: number): void {
         if (!this.player.inTutorial()) {
             this.setStage(9999);
             this.update();
@@ -37,17 +35,16 @@ class Introduction extends Quest {
         this.loadCallbacks();
     }
 
-    loadCallbacks() {
+    loadCallbacks(): void {
         this.onNPCTalk((npc: NPC) => {
-            let conversation = this.getConversation(npc.id);
+            const conversation = this.getConversation(npc.id);
 
             this.lastNPC = npc;
-
             this.player.send(
                 new Messages.NPC(Packets.NPCOpcode.Talk, {
                     id: npc.instance,
-                    text: npc.talk(conversation, this.player)
-                })
+                    text: npc.talk(conversation, this.player),
+                }),
             );
 
             if (this.player.talkIndex === 0) this.progress('talk');
@@ -88,9 +85,8 @@ class Introduction extends Quest {
         });
     }
 
-    progress(type: string) {
-        let task = this.data.task[this.stage];
-
+    progress(type: string): void {
+        const task = this.data.task[this.stage];
         if (!task || task !== type) return;
 
         if (this.stage === this.data.stages) {
@@ -105,16 +101,15 @@ class Introduction extends Quest {
                         id: 248,
                         count: 1,
                         ability: -1,
-                        abilityLevel: -1
+                        abilityLevel: -1,
                     });
                 else if (this.stage === 15)
                     this.player.inventory.add({
                         id: 87,
                         count: 1,
                         ability: -1,
-                        abilityLevel: -1
+                        abilityLevel: -1,
                     });
-
                 break;
         }
 
@@ -130,62 +125,55 @@ class Introduction extends Quest {
             new Messages.Quest(Packets.QuestOpcode.Progress, {
                 id: this.id,
                 stage: this.stage,
-                isQuest: true
-            })
+                isQuest: true,
+            }),
         );
 
         if (this.getTask() === 'door') this.player.updateRegion();
     }
 
-    isFinished() {
+    isFinished(): boolean {
         return super.isFinished() || !this.player.inTutorial();
     }
 
-    toggleChat() {
+    toggleChat(): void {
         this.player.canTalk = !this.player.canTalk;
     }
 
-    setStage(stage: number) {
+    setStage(stage: number): void {
         super.setStage(stage);
-
         this.clearPointers();
     }
 
-    finish() {
+    finish(): void {
         this.toggleChat();
         super.finish();
     }
 
-    hasDoorUnlocked(door: any) {
+    hasDoorUnlocked(door: any): boolean {
         switch (door.id) {
             case 0:
                 return this.stage > 6;
-
             case 6:
                 return this.stage > 14;
-
             case 7:
                 return this.stage > 22;
         }
-
         return false;
     }
 
-    verifyDoor(destX: number, destY: number) {
-        let doorData = this.data.doors[this.stage];
-
+    verifyDoor(destX: number, destY: number): boolean {
+        const doorData = this.data.doors[this.stage];
         if (!doorData) return;
-
         return doorData[0] === destX && doorData[1] === destY;
     }
 
-    getSpawn() {
+    getSpawn(): { x: number; y: number } {
         if (this.stage > 7) return { x: 331, y: 12 };
-
         return { x: 375, y: 41 };
     }
 
-    onFinishedLoading(callback: Function) {
+    onFinishedLoading(callback: () => void): void {
         this.finishedCallback = callback;
     }
 }
