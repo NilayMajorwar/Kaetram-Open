@@ -49,7 +49,7 @@ export default class Sprite {
         this.offsetAngle = 0;
 
         this.hurtSprite = {
-            loaded: false
+            loaded: false,
         };
 
         this.loadSprite();
@@ -62,9 +62,7 @@ export default class Sprite {
 
         this.image.addEventListener('load', () => {
             this.loaded = true;
-
             if (this.loadHurt) this.createHurtSprite();
-
             this.loadCallback?.();
         });
     }
@@ -100,7 +98,6 @@ export default class Sprite {
                     this.hasDeathAnimation = true;
 
                 const a = this.animationData[name];
-
                 animations[name] = new Animation(name, a.length, a.row, this.width, this.height);
             }
 
@@ -124,7 +121,6 @@ export default class Sprite {
 
         try {
             context.drawImage(this.image, 0, 0, this.image.width, this.image.height);
-
             spriteData = context.getImageData(0, 0, this.image.width, this.image.height);
 
             for (let i = 0; i < spriteData.data.length; i += 4) {
@@ -141,7 +137,7 @@ export default class Sprite {
                 offsetY: this.offsetY,
                 width: this.width,
                 height: this.height,
-                type: 'hurt'
+                type: 'hurt',
             };
         } catch (error) {
             log.error('Could not load hurt sprite.');

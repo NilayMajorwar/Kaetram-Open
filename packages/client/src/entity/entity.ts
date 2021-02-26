@@ -118,7 +118,7 @@ export default class Entity {
 
         this.renderingData = {
             scale: -1,
-            angle: 0
+            angle: 0,
         };
 
         this.loadDirty();
@@ -131,7 +131,6 @@ export default class Entity {
      */
     loadDirty(): void {
         this.dirty = true;
-
         this.dirtyCallback?.();
     }
 
@@ -146,7 +145,6 @@ export default class Entity {
 
     stopBlinking(): void {
         if (this.blinking) clearInterval(this.blinking);
-
         this.setVisible(true);
     }
 
@@ -185,15 +183,11 @@ export default class Entity {
         if (!this.spriteLoaded || this.currentAnimation?.name === name) return;
 
         const anim = this.getAnimationByName(name);
-
         if (!anim) return;
-
         this.currentAnimation = anim;
 
         if (name.slice(0, 3) === 'atk') this.currentAnimation.reset();
-
         this.currentAnimation.setSpeed(speed);
-
         this.currentAnimation.setCount(count || 0, onEndCount || (() => this.idle()));
     }
 
@@ -205,15 +199,12 @@ export default class Entity {
     setGridPosition(x: number, y: number): void {
         this.gridX = x;
         this.gridY = y;
-
         this.setPosition(x * 16, y * 16);
     }
 
     setCountdown(count: number): void {
         this.counter = count;
-
         this.countdownTime = Date.now();
-
         this.hasCounter = true;
     }
 
@@ -230,16 +221,14 @@ export default class Entity {
     }
 
     getDistance(entity: Entity): number {
-        const x = Math.abs(this.gridX - entity.gridX),
-            y = Math.abs(this.gridY - entity.gridY);
-
+        const x = Math.abs(this.gridX - entity.gridX);
+        const y = Math.abs(this.gridY - entity.gridY);
         return x > y ? x : y;
     }
 
     getCoordDistance(toX: number, toY: number): number {
-        const x = Math.abs(this.gridX - toX),
-            y = Math.abs(this.gridY - toY);
-
+        const x = Math.abs(this.gridX - toX);
+        const y = Math.abs(this.gridY - toY);
         return x > y ? x : y;
     }
 
@@ -261,7 +250,6 @@ export default class Entity {
 
     getAnimationByName(name: string): Animation {
         if (name in this.animations) return this.animations[name];
-
         return null;
     }
 

@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 import * as Modules from '@kaetram/common/src/modules';
 
 import Countdown from '../renderer/infos/countdown';
@@ -85,21 +83,17 @@ export default class InfoController {
                 }
 
                 if (colour) splat.setColours(colour.fill, colour.stroke);
-
                 this.addInfo(splat);
-
                 break;
             }
 
             case Modules.Hits.LevelUp: {
-                const lId = this.generateId(this.game.time, -1, x, y),
-                    levelSplat = new Splat(lId, type, 'Level Up!', x, y, false),
-                    lColour = Modules.DamageColours.exp;
+                const lId = this.generateId(this.game.time, -1, x, y);
+                const levelSplat = new Splat(lId, type, 'Level Up!', x, y, false);
+                const lColour = Modules.DamageColours.exp;
 
                 levelSplat.setColours(lColour.fill, lColour.stroke);
-
                 this.addInfo(levelSplat);
-
                 break;
             }
 
@@ -110,11 +104,9 @@ export default class InfoController {
 
                 if (this.countdownExists()) return;
 
-                const time = data.shift() as number,
-                    countdown = new Countdown('countdown', time);
-
+                const time = data.shift() as number;
+                const countdown = new Countdown('countdown', time);
                 this.addInfo(countdown);
-
                 break;
             }
         }
@@ -126,15 +118,12 @@ export default class InfoController {
 
     private addInfo(info: Info): void {
         this.infos[info.id] = info;
-
         info.onDestroy((id) => this.destroyQueue.add(id));
     }
 
     public update(time: number): void {
         this.forEachInfo((info) => info.update(time));
-
         this.destroyQueue.forEachQueue((id) => delete this.infos[id]);
-
         this.destroyQueue.reset();
     }
 
@@ -143,7 +132,7 @@ export default class InfoController {
     }
 
     public forEachInfo(callback: (info: Info) => void): void {
-        _.each(this.infos, (info) => callback(info));
+        Object.values(this.infos).forEach((info) => callback(info));
     }
 
     private generateId(time: number, info: number, x: number, y: number): string {

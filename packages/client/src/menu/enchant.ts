@@ -129,7 +129,7 @@ export default class Enchant {
     select(event: JQuery.ClickEvent): void {
         this.game.socket.send(Packets.Enchant, [
             Packets.EnchantOpcode.Select,
-            event.currentTarget.id.slice(17)
+            event.currentTarget.id.slice(17),
         ]);
     }
 

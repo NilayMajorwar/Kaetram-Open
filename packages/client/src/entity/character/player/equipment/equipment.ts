@@ -13,7 +13,7 @@ export default class Equipment {
         count: number,
         ability: number,
         abilityLevel: number,
-        power: number
+        power: number,
     ) {
         this.name = name;
         this.string = string;
@@ -53,7 +53,7 @@ export default class Equipment {
         count: number,
         ability: number,
         abilityLevel: number,
-        power?: number
+        power?: number,
     ): void {
         this.name = name;
         this.string = string;

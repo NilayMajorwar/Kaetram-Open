@@ -34,7 +34,10 @@ export default class PlayerHandler {
 
     load(): void {
         this.player.onRequestPath((x, y) => {
+            console.log(`Player requestPath: (${x}, ${y})`);
             if (this.player.dead || this.player.frozen) return null;
+            if (this.player.gridX === x && this.player.gridY === y) return [];
+            console.log('Player requestPath executing...');
 
             /**
              * If the position is the same as the player's current position
@@ -42,32 +45,29 @@ export default class PlayerHandler {
              * a colliding tile and will interfere with combat.
              */
 
-            let ignores = [];
             const isObject = this.map.isObject(x, y);
-
-            if (this.player.gridX === x && this.player.gridY === y) return ignores;
-
-            ignores = [this.player];
-
             if (!this.map.isColliding(x, y) && !isObject)
                 this.socket.send(Packets.Movement, [
                     Packets.MovementOpcode.Request,
                     x,
                     y,
                     this.player.gridX,
-                    this.player.gridY
+                    this.player.gridY,
                 ]);
 
+            const ignores: any[] = [this.player];
             if (isObject)
                 ignores.push({
                     hasPath() {
                         return false;
                     },
                     gridX: x,
-                    gridY: y
+                    gridY: y,
                 });
 
-            return this.game.findPath(this.player, x, y, ignores);
+            const foundPath = this.game.findPath(this.player, x, y, ignores);
+            console.log(foundPath);
+            return foundPath;
         });
 
         this.player.onStartPathing((path) => {
@@ -88,7 +88,7 @@ export default class PlayerHandler {
                 this.player.gridX,
                 this.player.gridY,
                 this.player.movementSpeed,
-                this.getTargetId()
+                this.getTargetId(),
             ]);
         });
 
@@ -115,7 +115,7 @@ export default class PlayerHandler {
                 y,
                 id,
                 hasTarget,
-                this.player.orientation
+                this.player.orientation,
             ]);
 
             this.socket.send(Packets.Target, [this.getTargetType(), this.getTargetId()]);
@@ -127,9 +127,7 @@ export default class PlayerHandler {
             }
 
             this.input.setPassiveTarget();
-
             this.game.storage.setOrientation(this.player.orientation);
-
             this.player.moving = false;
         });
 
@@ -143,7 +141,7 @@ export default class PlayerHandler {
             this.socket.send(Packets.Movement, [
                 Packets.MovementOpcode.Step,
                 this.player.gridX,
-                this.player.gridY
+                this.player.gridY,
             ]);
 
             if (!this.isAttackable()) return;

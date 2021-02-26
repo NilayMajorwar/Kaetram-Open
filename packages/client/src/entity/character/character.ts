@@ -291,7 +291,7 @@ export default class Character extends Entity {
     proceed(x: number, y: number): void {
         this.newDestination = {
             x: x,
-            y: y
+            y: y,
         };
     }
 
@@ -397,7 +397,7 @@ export default class Character extends Entity {
     move(x: number, y: number, forced?: boolean): void {
         this.destination = {
             gridX: x,
-            gridY: y
+            gridY: y,
         };
 
         this.adjacentTiles = {};

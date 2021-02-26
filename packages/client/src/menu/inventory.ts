@@ -66,7 +66,7 @@ export default class Inventory {
 
             itemSlotList.append(itemSlot);
             itemSlotList.append(
-                `<div id="itemCount${i}" class="inventoryItemCount">${itemCount}</div>`
+                `<div id="itemCount${i}" class="inventoryItemCount">${itemCount}</div>`,
             );
 
             if (item.ability > -1) {
@@ -149,7 +149,7 @@ export default class Inventory {
             case 'wield':
                 this.game.socket.send(Packets.Inventory, [
                     Packets.InventoryOpcode.Select,
-                    this.selectedItem.index
+                    this.selectedItem.index,
                 ]);
                 this.clearSelection();
 
@@ -165,7 +165,7 @@ export default class Inventory {
                 } else {
                     this.game.socket.send(Packets.Inventory, [
                         Packets.InventoryOpcode.Remove,
-                        item
+                        item,
                     ]);
                     this.clearSelection();
                 }
@@ -181,7 +181,7 @@ export default class Inventory {
                 this.game.socket.send(Packets.Inventory, [
                     Packets.InventoryOpcode.Remove,
                     this.selectedItem,
-                    count
+                    count,
                 ]);
                 this.actions.hideDrop();
                 this.clearSelection();
@@ -198,7 +198,7 @@ export default class Inventory {
             case 'itemInfo': {
                 this.game.input.chatHandler.add(
                     'WORLD',
-                    `You have ${this.selectedItem.count} coins.`
+                    `You have ${this.selectedItem.count} coins.`,
                 );
 
                 break;
@@ -221,7 +221,7 @@ export default class Inventory {
             info.ability,
             info.abilityLevel,
             info.edible,
-            info.equippable
+            info.equippable,
         );
 
         const cssSlot = item.find(`#slot${info.index}`);

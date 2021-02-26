@@ -184,7 +184,7 @@ class API {
             try {
                 const data = JSON.parse(body);
                 if (data.status === 'error') console.log(data);
-                // TODO: (oc) Do something with this?
+                // @todo (oc) Do something with this?
             } catch {
                 log.error('Could not send message to hub.');
             }

@@ -25,7 +25,7 @@ export default class Slot {
         ability: number,
         abilityLevel: number,
         edible?: boolean,
-        equippable?: boolean
+        equippable?: boolean,
     ): void {
         this.string = string;
         this.count = count;

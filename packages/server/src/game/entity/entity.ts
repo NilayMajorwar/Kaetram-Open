@@ -18,7 +18,7 @@ export type EntityState = {
 /**
  * Base class for all game objects.
  *
- * TODO: Convert to abstract class?
+ * @todo Convert to abstract class?
  */
 class Entity {
     public id: number;

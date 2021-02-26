@@ -186,7 +186,7 @@ class Mob extends Character {
         base.maxHitPoints = this.maxHitPoints;
         base.attackRange = this.attackRange;
         base.level = this.level;
-        base.hiddenName = this.hiddenName; // TODO: Just don't send name when hiddenName present.
+        base.hiddenName = this.hiddenName; // @todo Just don't send name when hiddenName present.
 
         return base;
     }

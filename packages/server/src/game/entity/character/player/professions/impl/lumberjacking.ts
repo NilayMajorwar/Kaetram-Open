@@ -63,7 +63,7 @@ class Lumberjacking extends Profession {
                         this.world.destroyTree(this.targetId, Modules.Trees[this.treeId]);
                 }
             } catch {
-                // TODO: Add error-catching here
+                // @todo Add error-catching here
             }
         }, this.tick);
 
@@ -82,7 +82,7 @@ class Lumberjacking extends Profession {
         this.started = false;
     }
 
-    // TODO: This method may be incomplete...
+    // @todo This method may be incomplete...
     handle(id: any, treeId: string): void {
         if (!this.player.hasLumberjackingWeapon()) {
             this.player.notify('You do not have an axe to cut this tree with.');

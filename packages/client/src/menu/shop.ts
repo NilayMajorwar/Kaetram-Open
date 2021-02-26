@@ -74,7 +74,6 @@ export default class Shop {
 
     buy(event: JQuery.ClickEvent): void {
         const id = event.currentTarget.id.slice(11);
-
         this.game.socket.send(Packets.Shop, [Packets.ShopOpcode.Buy, this.openShop, id, 1]);
     }
 
@@ -85,7 +84,6 @@ export default class Shop {
 
     select(event: JQuery.ClickEvent): void {
         const id = event.currentTarget.id.slice(17);
-
         this.game.socket.send(Packets.Shop, [Packets.ShopOpcode.Select, this.openShop, id]);
     }
 
@@ -100,12 +98,12 @@ export default class Shop {
 
         this.sellSlot.css({
             backgroundImage: slotImage.css('background-image'),
-            backgroundSize: slotImage.css('background-size')
+            backgroundSize: slotImage.css('background-size'),
         });
 
         this.sellSlotReturn.css({
             backgroundImage: await this.container.getImageFormat(info.currency),
-            backgroundSize: this.sellSlot.css('background-size')
+            backgroundSize: this.sellSlot.css('background-size'),
         });
 
         this.sellSlotReturnText.text(info.price);
@@ -174,7 +172,7 @@ export default class Shop {
 
             this.container.setSlot(i, {
                 string: string,
-                count: count
+                count: count,
             });
 
             // Bind the itemBuy to the local buy function.

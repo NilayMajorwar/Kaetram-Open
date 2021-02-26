@@ -22,7 +22,7 @@ class Home {
         this.endRegion = '4-10';
     }
 
-    // TODO: Looks incomplete.
+    // @todo Looks incomplete.
     get(): void {
         const startPosition = this.region.getRegionBounds(this.startRegion);
         const endPosition = this.region.getRegionBounds(this.endRegion);

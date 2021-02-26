@@ -1,7 +1,7 @@
 import fs from 'fs';
 import config from '../../config';
 
-// TODO: Store and use colour strings as constants (and fix the escape issues)
+// @todo Store and use colour strings as constants (and fix the escape issues)
 
 class Log {
     /**
@@ -56,7 +56,7 @@ class Log {
         this.send('\x1b[35m%s\x1b[0m', `[${new Date()}] TRACE ${message}`, true);
     }
 
-    send(colour: string, message: string, trace?: boolean) {
+    send(colour: string | null, message: string, trace?: boolean) {
         if (this.stream) this.stream.write(message + '\n');
 
         if (!colour) console.log(message);

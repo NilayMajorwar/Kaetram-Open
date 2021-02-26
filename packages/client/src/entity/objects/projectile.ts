@@ -63,9 +63,7 @@ export default class Projectile extends Entity {
         if (!target) return;
 
         this.dynamic = true;
-
         this.target = target;
-
         this.updateAngle();
     }
 
@@ -80,8 +78,8 @@ export default class Projectile extends Entity {
     updateAngle(): void {
         if (!this.target) return;
 
-        this.angle =
-            Math.atan2(this.target.y - this.y, this.target.x - this.x) * (180 / Math.PI) - 90;
+        const angleRadians = Math.atan2(this.target.y - this.y, this.target.x - this.x);
+        this.angle = angleRadians * (180 / Math.PI) - 90;
     }
 
     getAngle(): number {

@@ -74,7 +74,7 @@ export default class Updater {
                                     },
                                     entity.x + (isLeft ? -1 : 1),
                                     entity.x + (isLeft ? -16 : 16),
-                                    entity.movementSpeed
+                                    entity.movementSpeed,
                                 );
 
                                 break;
@@ -97,7 +97,7 @@ export default class Updater {
                                     },
                                     entity.y + (isUp ? -1 : 1),
                                     entity.y + (isUp ? -16 : 16),
-                                    entity.movementSpeed
+                                    entity.movementSpeed,
                                 );
 
                                 break;
@@ -141,7 +141,7 @@ export default class Updater {
         const player = this.game.player,
             position = {
                 x: player.gridX,
-                y: player.gridY
+                y: player.gridY,
             };
 
         if (player.frozen) return;

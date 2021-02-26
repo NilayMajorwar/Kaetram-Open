@@ -1,4 +1,4 @@
-// TODO: Add typings for packets
+// @todo Add typings for packets
 
 const Packets: { [key: string]: any } = {
     Handshake: 0,

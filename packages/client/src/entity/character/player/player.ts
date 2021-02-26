@@ -206,7 +206,7 @@ export default class Player extends Character {
         count: number,
         ability: number,
         abilityLevel: number,
-        power?: number
+        power?: number,
     ): void {
         switch (type) {
             case Modules.Equipment.Armour:
@@ -215,7 +215,6 @@ export default class Player extends Character {
                 else this.armour.update(name, string, count, ability, abilityLevel, power);
 
                 this.updateArmourCallback?.(string, power);
-
                 break;
 
             case Modules.Equipment.Weapon:
@@ -224,9 +223,7 @@ export default class Player extends Character {
                 else this.weapon.update(name, string, count, ability, abilityLevel, power);
 
                 this.weapon.ranged = string.includes('bow');
-
                 this.updateWeaponCallback?.(string, power);
-
                 break;
 
             case Modules.Equipment.Pendant:

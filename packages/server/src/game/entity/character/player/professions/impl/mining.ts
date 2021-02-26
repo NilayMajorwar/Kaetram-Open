@@ -24,7 +24,7 @@ class Mining extends Profession {
         if (this.started) return;
 
         this.miningInterval = setInterval(() => {
-            // TODO: Implement this
+            // @todo Implement this
         }, this.tick);
 
         this.started = true;

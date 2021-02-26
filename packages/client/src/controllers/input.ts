@@ -109,36 +109,29 @@ export default class InputController {
                     case Modules.Keys.W:
                     case Modules.Keys.Up:
                         player.moveUp = true;
-
                         break;
 
                     case Modules.Keys.A:
                     case Modules.Keys.Left:
                         player.moveLeft = true;
-
                         break;
 
                     case Modules.Keys.S:
                     case Modules.Keys.Down:
                         player.moveDown = true;
-
                         break;
 
                     case Modules.Keys.D:
                     case Modules.Keys.Right:
                         player.moveRight = true;
-
                         break;
 
                     case Modules.Keys.Spacebar:
                         if (player.moving) break;
-
                         if (!player.isRanged()) break;
 
                         player.frozen = true;
-
                         this.updateFrozen(player.frozen);
-
                         break;
 
                     case Modules.Keys.Slash:
@@ -146,22 +139,18 @@ export default class InputController {
 
                     case Modules.Keys.Enter:
                         this.chatHandler.toggle();
-
                         break;
 
                     case Modules.Keys.I:
                         this.game.menu?.inventory?.open();
-
                         break;
 
                     case Modules.Keys.M:
                         this.game.menu?.warp?.open();
-
                         break;
 
                     case Modules.Keys.P:
                         this.game.menu?.profile?.open();
-
                         break;
 
                     case Modules.Keys.Esc:
@@ -181,18 +170,16 @@ export default class InputController {
 
                     this.game.socket?.send(Packets.Command, [
                         Packets.CommandOpcode.CtrlClick,
-                        this.getCoords()
+                        this.getCoords(),
                     ]);
                     return;
                 }
 
                 this.leftClick(this.getCoords());
-
                 break;
 
             case Modules.InputType.RightClick:
                 this.rightClick(this.getCoords());
-
                 break;
         }
     }
@@ -204,36 +191,29 @@ export default class InputController {
             case Modules.Keys.W:
             case Modules.Keys.Up:
                 player.moveUp = false;
-
                 break;
 
             case Modules.Keys.A:
             case Modules.Keys.Left:
                 player.moveLeft = false;
-
                 break;
 
             case Modules.Keys.S:
             case Modules.Keys.Down:
                 player.moveDown = false;
-
                 break;
 
             case Modules.Keys.D:
             case Modules.Keys.Right:
                 player.moveRight = false;
-
                 break;
 
             case Modules.Keys.Spacebar:
                 if (player.moving) break;
-
                 if (!player.isRanged()) break;
 
                 player.frozen = false;
-
                 this.updateFrozen(player.frozen);
-
                 break;
         }
 
@@ -259,7 +239,6 @@ export default class InputController {
 
     leftClick(position: Pos | undefined, keyMovement?: boolean): void {
         const player = this.getPlayer();
-
         if (player.stunned || !position) return;
 
         this.setPassiveTarget();
@@ -293,7 +272,7 @@ export default class InputController {
             this.entity = this.game.getEntityAt(
                 position.x,
                 position.y,
-                position.x === player.gridX && position.y === player.gridY
+                position.x === player.gridX && position.y === player.gridY,
             );
 
         if (this.entity) {
@@ -310,7 +289,7 @@ export default class InputController {
             ) {
                 this.game.socket?.send(Packets.Target, [
                     Packets.TargetOpcode.Attack,
-                    this.entity.id
+                    this.entity.id,
                 ]);
                 player.lookAt(this.entity);
                 return;
@@ -319,7 +298,7 @@ export default class InputController {
             if (this.entity.gridX === player.gridX && this.entity.gridY === player.gridY)
                 this.game.socket?.send(Packets.Target, [
                     Packets.TargetOpcode.Attack,
-                    this.entity.id
+                    this.entity.id,
                 ]);
 
             if (this.isTargetable(this.entity)) {
@@ -339,7 +318,7 @@ export default class InputController {
             this.entity = this.game.getEntityAt(
                 position.x,
                 position.y,
-                this.isSamePosition(position)
+                this.isSamePosition(position),
             );
 
         if (this.entity) {
@@ -348,7 +327,7 @@ export default class InputController {
             actions.loadDefaults(this.entity.type, {
                 mouseX: this.mouse.x,
                 mouseY: this.mouse.y,
-                pvp: this.entity.pvp
+                pvp: this.entity.pvp,
             });
 
             actions.show();
@@ -361,7 +340,6 @@ export default class InputController {
         if (!this.cursorVisible) return;
 
         if (this.newCursor !== this.cursor) this.cursor = this.newCursor;
-
         if (this.newTargetColour !== this.targetColour) this.targetColour = this.newTargetColour;
     }
 
@@ -411,7 +389,6 @@ export default class InputController {
                         this.setCursor(this.getAttackCursor());
                         this.hovering = Modules.Hovering.Player;
                     }
-
                     break;
             }
     }
@@ -467,10 +444,7 @@ export default class InputController {
             x = (this.mouse.x - offsetX) / tileScale + camera.gridX,
             y = (this.mouse.y - offsetY) / tileScale + camera.gridY;
 
-        return {
-            x: x,
-            y: y
-        };
+        return { x, y };
     }
 
     getTargetData(): TargetData | undefined {
@@ -491,7 +465,7 @@ export default class InputController {
             dx: this.selectedX * 16 * superScale,
             dy: this.selectedY * 16 * superScale,
             dw: sprite.width * superScale,
-            dh: sprite.height * superScale
+            dh: sprite.height * superScale,
         });
     }
 
@@ -509,7 +483,6 @@ export default class InputController {
 
     isSamePosition(position: Pos): boolean {
         const player = this.getPlayer();
-
         return position.x === player.gridX && position.y === player.gridY;
     }
 

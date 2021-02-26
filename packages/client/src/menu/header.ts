@@ -40,7 +40,7 @@ export default class Header {
 
         // 11 is due to the offset of the #health in the #healthBar
         let diff = Math.floor(
-            width * (this.player.hitPoints / this.player.maxHitPoints) - 11 * scale
+            width * (this.player.hitPoints / this.player.maxHitPoints) - 11 * scale,
         );
         const prevWidth = this.health.width();
 

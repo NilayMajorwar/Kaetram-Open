@@ -1,4 +1,4 @@
-enum Packets {
+export enum Packets {
     Handshake,
     Intro,
     Welcome,
@@ -48,22 +48,22 @@ enum Packets {
     Bubble,
     Client,
     Profession,
-    BuildUp
+    BuildUp,
 }
 
 export enum IntroOpcode {
     Login,
     Register,
-    Guest
+    Guest,
 }
 
-enum EquipmentOpcode {
+export enum EquipmentOpcode {
     Batch,
     Equip,
-    Unequip
+    Unequip,
 }
 
-enum MovementOpcode {
+export enum MovementOpcode {
     Request,
     Started,
     Step,
@@ -74,153 +74,153 @@ enum MovementOpcode {
     Entity,
     Freeze,
     Stunned,
-    Zone
+    Zone,
 }
 
-enum TargetOpcode {
+export enum TargetOpcode {
     Talk,
     Attack,
     None,
-    Object
+    Object,
 }
 
-enum CombatOpcode {
+export enum CombatOpcode {
     Initiate,
     Hit,
     Finish,
-    Sync
+    Sync,
 }
 
-enum ProjectileOpcode {
+export enum ProjectileOpcode {
     Static,
     Dynamic,
     Create,
     Update,
-    Impact
+    Impact,
 }
 
-enum NetworkOpcode {
+export enum NetworkOpcode {
     Ping,
-    Pong
+    Pong,
 }
 
-enum InventoryOpcode {
+export enum InventoryOpcode {
     Batch,
     Add,
     Remove,
-    Select
+    Select,
 }
 
-enum BankOpcode {
+export enum BankOpcode {
     Batch,
     Add,
     Remove,
-    Select
+    Select,
 }
 
-enum QuestOpcode {
+export enum QuestOpcode {
     QuestBatch,
     AchievementBatch,
     Progress,
-    Finish
+    Finish,
 }
 
-enum NotificationOpcode {
+export enum NotificationOpcode {
     Ok,
     YesNo,
     Text,
-    Popup
+    Popup,
 }
 
-enum ExperienceOpcode {
+export enum ExperienceOpcode {
     Combat,
-    Profession
+    Profession,
 }
 
-enum NPCOpcode {
+export enum NPCOpcode {
     Talk,
     Store,
     Bank,
     Enchant,
-    Countdown
+    Countdown,
 }
 
-enum TradeOpcode {
+export enum TradeOpcode {
     Request,
     Accept,
-    Decline
+    Decline,
 }
 
-enum EnchantOpcode {
+export enum EnchantOpcode {
     Select,
     Remove,
     Enchant,
-    Update
+    Update,
 }
 
-enum GuildOpcode {
+export enum GuildOpcode {
     Create,
     Join,
     Leave,
     Rank,
     Loot,
-    Update
+    Update,
 }
 
-enum PointerOpcode {
+export enum PointerOpcode {
     Location,
     NPC,
     Relative,
     Remove,
-    Button
+    Button,
 }
 
-enum ShopOpcode {
+export enum ShopOpcode {
     Open,
     Buy,
     Sell,
     Refresh,
     Select,
-    Remove
+    Remove,
 }
 
-enum MinigameOpcode {
-    TeamWar
+export enum MinigameOpcode {
+    TeamWar,
 }
 
-enum TeamWarOpcode {
+export enum TeamWarOpcode {
     Enter,
     Team,
     Red,
     Blue,
     Leave,
-    Countdown
+    Countdown,
 }
 
-enum RegionOpcode {
+export enum RegionOpcode {
     Render,
     Modify,
     Collision,
     Update,
-    Reset
+    Reset,
 }
 
-enum OverlayOpcode {
+export enum OverlayOpcode {
     Set,
     Remove,
     Lamp,
     RemoveLamps,
-    Darkness
+    Darkness,
 }
 
-enum CameraOpcode {
+export enum CameraOpcode {
     LockX,
     LockY,
     FreeFlow,
-    Player
+    Player,
 }
 
-enum PushOpcode {
+export enum PushOpcode {
     Broadcast,
     Selectively,
     Player,
@@ -228,16 +228,16 @@ enum PushOpcode {
     Region,
     Regions,
     NameArray,
-    OldRegions
+    OldRegions,
 }
 
-enum CommandOpcode {
-    CtrlClick
+export enum CommandOpcode {
+    CtrlClick,
 }
 
-enum ProfessionOpcode {
+export enum ProfessionOpcode {
     Batch,
-    Update
+    Update,
 }
 
 export default {
@@ -262,12 +262,12 @@ export default {
     ShopOpcode,
     MinigameOpcode: {
         ...MinigameOpcode,
-        TeamWarOpcode
+        TeamWarOpcode,
     },
     RegionOpcode,
     OverlayOpcode,
     CameraOpcode,
     PushOpcode,
     CommandOpcode,
-    ProfessionOpcode
+    ProfessionOpcode,
 };

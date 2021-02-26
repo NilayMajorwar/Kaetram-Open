@@ -78,7 +78,7 @@ export default class AudioController {
 
                 this.audibles[name] = null;
             },
-            false
+            false,
         );
 
         sound.preload = 'auto';
@@ -91,7 +91,7 @@ export default class AudioController {
         this.audibles[name] = [sound];
 
         _.times(channels - 1, () =>
-            this.audibles[name]?.push(sound.cloneNode(true) as AudioElement)
+            this.audibles[name]?.push(sound.cloneNode(true) as AudioElement),
         );
 
         if (name in this.music) this.music[name as Music] = true;
@@ -100,7 +100,6 @@ export default class AudioController {
 
     public play(type: Modules.AudioTypes, name: Audio): void {
         if (!this.isEnabled() || this.game.player?.dead) return;
-
         if (isSafari()) return;
 
         switch (type) {
@@ -108,17 +107,13 @@ export default class AudioController {
                 this.fadeOut(this.song, () => this.reset(this.song));
 
                 const song = this.get(name);
-
                 if (!song) return;
 
                 song.volume = 0;
-
                 song.play();
 
                 this.fadeIn(song);
-
                 this.song = song;
-
                 break;
             }
 
@@ -126,13 +121,10 @@ export default class AudioController {
                 if (!this.sounds[name as Sounds]) this.parse('sounds', name, 4);
 
                 const sound = this.get(name);
-
                 if (!sound) return;
 
                 sound.volume = this.getSFXVolume() as number;
-
                 sound.play();
-
                 break;
             }
         }
@@ -140,7 +132,6 @@ export default class AudioController {
 
     public update(): void {
         if (!this.isEnabled()) return;
-
         if (this.newSong === this.song) return;
 
         const song = this.getMusic(this.newSong);
@@ -188,9 +179,7 @@ export default class AudioController {
 
             if (song.volume <= 0.08) {
                 song.volume = 0;
-
                 callback?.(song);
-
                 clearInterval(song.fadingOut as number);
             }
         }, 100);
@@ -200,7 +189,6 @@ export default class AudioController {
         if (!this.song) return;
 
         this.fadeOut(this.song, (song) => this.reset(song));
-
         this.song = null;
     }
 
@@ -246,10 +234,7 @@ export default class AudioController {
     }
 
     private getMusic({ name }: AudioElement): { sound: AudioElement | undefined; name: Audio } {
-        return {
-            sound: this.get(name),
-            name
-        };
+        return { sound: this.get(name), name };
     }
 
     private getSFXVolume(): number | null {

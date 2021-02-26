@@ -43,7 +43,7 @@ const Trees = {
         IcePalm: 72000,
     },
 
-    // TODO: Move this to the tilemap instead?
+    // @todo Move this to the tilemap instead?
     Stumps: {
         // Oak Tree
         '846': '651',

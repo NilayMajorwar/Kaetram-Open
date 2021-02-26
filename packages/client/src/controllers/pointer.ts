@@ -1,5 +1,4 @@
 import $ from 'jquery';
-import _ from 'lodash';
 
 import Entity from '../entity/entity';
 import Game from '../game';
@@ -17,9 +16,7 @@ export default class PointerController {
     constructor(game: Game) {
         this.game = game;
         this.pointers = {};
-
         this.scale = this.getScale();
-
         this.container = $('#bubbles');
     }
 
@@ -29,25 +26,20 @@ export default class PointerController {
         switch (type) {
             case Modules.Pointers.Button:
                 this.pointers[id] = new Pointer(id, $(`#${name}`), type);
-
                 break;
 
             default: {
                 const element = $(`<div id="${id}" class="pointer"></div>`);
-
                 this.setSize(element);
-
                 this.container.append(element);
-
                 this.pointers[id] = new Pointer(id, element, type);
-
                 break;
             }
         }
     }
 
     resize(): void {
-        _.each(this.pointers, (pointer) => {
+        Object.values(this.pointers).forEach((pointer) => {
             switch (pointer.type) {
                 case Modules.Pointers.Relative: {
                     const scale = this.getScale(),
@@ -74,13 +66,12 @@ export default class PointerController {
             height: '64px',
             margin: 'inherit',
             marginTop: '-18px',
-            background: `url("${pointer}")`
+            background: `url("${pointer}")`,
         });
     }
 
     clean(): void {
-        _.each(this.pointers, (pointer) => pointer.destroy());
-
+        Object.values(this.pointers).forEach((pointer) => pointer.destroy());
         this.pointers = {};
     }
 
@@ -92,14 +83,14 @@ export default class PointerController {
     set(pointer: Pointer, posX: number, posY: number): void {
         this.updateCamera();
 
-        const tileSize = 48, // 16 * this.scale
-            x = (posX - this.camera.x) * this.scale,
-            width = parseInt(pointer.element.css('width') + 24),
-            offset = width / 2 - tileSize / 2;
+        const tileSize = 48; // 16 * this.scale
+        const x = (posX - this.camera.x) * this.scale;
+        const width = parseInt(pointer.element.css('width') + 24);
+        const offset = width / 2 - tileSize / 2;
 
         const y = (posY - this.camera.y) * this.scale - tileSize;
-        const outX = x / this.game.renderer.canvasWidth,
-            outY = y / this.game.renderer.canvasHeight;
+        const outX = x / this.game.renderer.canvasWidth;
+        const outY = y / this.game.renderer.canvasHeight;
 
         if (outX >= 1.5) {
             // right
@@ -148,7 +139,6 @@ export default class PointerController {
 
     setToEntity(entity: Entity): void {
         const pointer = this.get(entity.id);
-
         if (!pointer) return;
 
         this.set(pointer, entity.x, entity.y);
@@ -156,22 +146,19 @@ export default class PointerController {
 
     setToPosition(id: string, x: number, y: number): void {
         const pointer = this.get(id);
-
         if (!pointer) return;
 
         pointer.setPosition(x, y);
-
         this.set(pointer, x, y);
     }
 
     setRelative(id: string, x: number, y: number): void {
         const pointer = this.get(id);
-
         if (!pointer) return;
 
-        const scale = this.getScale(),
-            offsetX = 0,
-            offsetY = 0;
+        const scale = this.getScale();
+        const offsetX = 0;
+        const offsetY = 0;
 
         pointer.setPosition(x, y);
 
@@ -180,21 +167,18 @@ export default class PointerController {
     }
 
     update(): void {
-        _.each(this.pointers, (pointer) => {
+        Object.values(this.pointers).forEach((pointer) => {
             switch (pointer.type) {
                 case Modules.Pointers.Entity: {
                     const entity = this.game.entities.get(pointer.id);
-
                     if (entity) this.setToEntity(entity);
                     else this.destroy(pointer);
-
                     break;
                 }
 
                 case Modules.Pointers.Position:
                     if (pointer.x !== -1 && pointer.y !== -1)
                         this.set(pointer, pointer.x, pointer.y);
-
                     break;
             }
         });
@@ -202,7 +186,6 @@ export default class PointerController {
 
     get(id: string): Pointer {
         if (id in this.pointers) return this.pointers[id];
-
         return null;
     }
 

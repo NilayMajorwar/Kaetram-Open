@@ -1,5 +1,4 @@
 import glTiled, { GLTilemap, ITilemap } from 'gl-tiled';
-import _ from 'lodash';
 
 import mapData from '../../data/maps/map.json';
 import Game from '../game';
@@ -116,12 +115,14 @@ export default class Map {
 
             worker.addEventListener('message', (event) => {
                 const map: MapData = event.data;
+                console.log(map.grid);
 
                 this.parseMap(map);
                 this.grid = map.grid;
                 this.mapLoaded = true;
             });
         } else {
+            console.log('No web worker!');
             if (this.game.isDebug()) log.info('Parsing map with JSON...');
 
             this.parseMap(mapData as MapData);
@@ -133,8 +134,8 @@ export default class Map {
     synchronize(tileData: TileData[]): void {
         // Use traditional for-loop instead of _
         for (const tile of tileData) {
-            const collisionIndex = this.collisions.indexOf(tile.index),
-                objectIndex = this.objects.indexOf(tile.index);
+            const collisionIndex = this.collisions.indexOf(tile.index);
+            const objectIndex = this.objects.indexOf(tile.index);
 
             this.data[tile.index] = tile.data;
 
@@ -145,18 +146,14 @@ export default class Map {
             if (!tile.isCollision && collisionIndex > -1) {
                 // Removing existing collision tileIndex
                 const position = this.indexToGridPosition(tile.index + 1);
-
                 this.collisions.splice(collisionIndex, 1);
-
                 this.grid[position.y][position.x] = 0;
             }
 
             if (tile.isObject && objectIndex < 0) this.objects.push(tile.index);
-
             if (!tile.isObject && objectIndex > -1) this.objects.splice(objectIndex, 1);
 
             if (tile.cursor) this.cursorTiles[tile.index] = tile.cursor;
-
             if (!tile.cursor && tile.index in this.cursorTiles) this.cursorTiles[tile.index] = null;
         }
 
@@ -170,10 +167,9 @@ export default class Map {
     loadTilesets(): void {
         if (this.rawTilesets.length === 0) return;
 
-        _.each(this.rawTilesets, (rawTileset) => {
+        this.rawTilesets.forEach((rawTileset) => {
             this.loadTileset(rawTileset, (tileset) => {
                 this.tilesets[tileset.index] = tileset;
-
                 if (this.tilesets.length === this.rawTilesets.length) this.tilesetsLoaded = true;
             });
         });
@@ -181,7 +177,7 @@ export default class Map {
 
     async loadTileset(
         rawTileset: MapTileset,
-        callback: (tileset: TilesetImageElement) => void
+        callback: (tileset: TilesetImageElement) => void,
     ): Promise<void> {
         const tileset = new Image() as TilesetImageElement;
 
@@ -237,14 +233,14 @@ export default class Map {
                 name: this.tilesets[i].name,
                 url: this.tilesets[i].path,
                 data: this.tilesets[i],
-                extension: 'png'
+                extension: 'png',
             };
 
         this.webGLMap?.glTerminate();
 
         this.webGLMap = new glTiled.GLTilemap(map, {
             gl: context,
-            assetCache: resources
+            assetCache: resources,
         });
 
         this.webGLMap.glInitialize(context);
@@ -283,7 +279,7 @@ export default class Map {
             nextobjectid: null,
             properties: null,
             staggeraxis: null,
-            staggerindex: null
+            staggerindex: null,
         };
 
         /* Create 'layers' based on map depth and data. */
@@ -298,7 +294,7 @@ export default class Map {
                 visible: true,
                 x: 0,
                 y: 0,
-                data: []
+                data: [],
             };
 
             for (let j = 0; j < this.data.length; j++) {
@@ -327,7 +323,7 @@ export default class Map {
                 tilecount: (this.tilesets[i].width / 16) * (this.tilesets[i].height / 16),
                 tilewidth: object.tilewidth,
                 tileheight: object.tileheight,
-                tiles: []
+                tiles: [],
             };
 
             for (const tile in this.animatedTiles) {
@@ -336,7 +332,7 @@ export default class Map {
                 if (indx > tileset.firstgid - 1 && indx < tileset.tilecount)
                     tileset.tiles.push({
                         animation: this.animatedTiles[tile],
-                        id: indx
+                        id: indx,
                     });
             }
 
@@ -362,26 +358,24 @@ export default class Map {
             for (let j = 0; j < this.width; j++) this.grid[i][j] = 0;
         }
 
-        _.each(this.collisions, (index) => {
+        this.collisions.forEach((index) => {
             const position = this.indexToGridPosition(index + 1);
             this.grid[position.y][position.x] = 1;
         });
 
-        _.each(this.blocking, (index) => {
+        this.blocking.forEach((index) => {
             const position = this.indexToGridPosition(index + 1);
-
             if (this.grid[position.y]) this.grid[position.y][position.x] = 1;
         });
     }
 
     updateCollisions(): void {
-        _.each(this.collisions, (index) => {
+        console.log(this.collisions.length);
+        this.collisions.forEach((index) => {
             const position = this.indexToGridPosition(index + 1);
-
+            // console.log(position.x, position.y);
             if (position.x > this.width - 1) position.x = this.width - 1;
-
             if (position.y > this.height - 1) position.y = this.height - 1;
-
             this.grid[position.y][position.x] = 1;
         });
     }
@@ -389,13 +383,10 @@ export default class Map {
     indexToGridPosition(index: number): Pos {
         index -= 1;
 
-        const x = this.getX(index + 1, this.width),
-            y = Math.floor(index / this.width);
+        const x = this.getX(index + 1, this.width);
+        const y = Math.floor(index / this.width);
 
-        return {
-            x: x,
-            y: y
-        };
+        return { x, y };
     }
 
     gridPositionToIndex(x: number, y: number): number {
@@ -403,22 +394,20 @@ export default class Map {
     }
 
     isColliding(x: number, y: number): boolean {
+        // console.log(`Out of bounds: ${this.isOutOfBounds(x, y)}`);
+        // console.log(this.grid[y][x]);
         if (this.isOutOfBounds(x, y) || !this.grid) return false;
-
         return this.grid[y][x] === 1;
     }
 
     isObject(x: number, y: number): boolean {
         const index = this.gridPositionToIndex(x, y) - 1;
-
         return this.objects.includes(index);
     }
 
     getTileCursor(x: number, y: number): string {
         const index = this.gridPositionToIndex(x, y) - 1;
-
         if (!(index in this.cursorTiles)) return null;
-
         return this.cursorTiles[index];
     }
 
@@ -440,7 +429,6 @@ export default class Map {
 
     getX(index: number, width: number): number {
         if (index === 0) return 0;
-
         return index % width === 0 ? width - 1 : (index % width) - 1;
     }
 
@@ -461,10 +449,10 @@ export default class Map {
     }
 
     loadRegionData(): void {
-        const regionData = this.game.storage.getRegionData(),
-            collisions = this.game.storage.getCollisions(),
-            objects = this.game.storage.getObjects(),
-            cursorTiles = this.game.storage.getCursorTiles();
+        const regionData = this.game.storage.getRegionData();
+        const collisions = this.game.storage.getCollisions();
+        const objects = this.game.storage.getObjects();
+        const cursorTiles = this.game.storage.getCursorTiles();
 
         if (regionData.length === 0) return;
 

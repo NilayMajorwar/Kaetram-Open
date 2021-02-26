@@ -44,13 +44,11 @@ export default class ChatController {
         switch (data) {
             case Modules.Keys.Esc:
                 this.toggle();
-
                 break;
 
             case Modules.Keys.Enter:
                 if (this.input.val() === '') this.toggle();
                 else this.send();
-
                 break;
         }
     }
@@ -75,7 +73,6 @@ export default class ChatController {
 
     private showChat(): void {
         this.chat.fadeIn('fast');
-
         this.visible = true;
     }
 
@@ -98,7 +95,6 @@ export default class ChatController {
         this.fadingTimeout = window.setTimeout(() => {
             if (!this.isActive()) {
                 this.chat.fadeOut('slow');
-
                 this.visible = false;
             }
         }, this.fadingDuration);

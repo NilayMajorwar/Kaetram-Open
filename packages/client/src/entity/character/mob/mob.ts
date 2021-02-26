@@ -8,9 +8,7 @@ export default class Mob extends Character {
 
         this.hitPoints = -1;
         this.maxHitPoints = -1;
-
         this.hiddenName = false;
-
         this.type = 'mob';
     }
 

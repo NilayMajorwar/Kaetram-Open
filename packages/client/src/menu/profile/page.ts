@@ -6,7 +6,6 @@ export default class Page {
 
     constructor(element: string) {
         this.body = $(element);
-
         this.loaded = false;
     }
 

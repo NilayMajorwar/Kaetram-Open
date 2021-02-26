@@ -26,7 +26,7 @@ class SkeletonKing extends Combat {
 
     reset(): void {
         this.lastSpawn = 0;
-        // TODO: Cleanup?
+        // @todo Cleanup?
         const listCopy = this.minions.slice();
         for (let i = 0; i < listCopy.length; i++) this.world.kill(listCopy[i]);
     }

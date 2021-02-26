@@ -11,7 +11,7 @@ class BuildUp {
     }
 
     process() {
-        // TODO: Implement this?
+        // @todo Implement this?
     }
 
     send(opcode: number, info: any): void {

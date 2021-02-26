@@ -28,7 +28,7 @@ import Packets from '@kaetram/common/src/packets';
 import Socket from './socket';
 
 /**
- * TODO: Types to be done when common server and client types are made.
+ * @todo Types to be done when common server and client types are made.
  */
 
 export default class Connection {
@@ -99,7 +99,7 @@ export default class Connection {
                     Packets.IntroOpcode.Register,
                     username,
                     password,
-                    email
+                    email,
                 ]);
             } else if (this.app.isGuest())
                 this.socket.send(Packets.Intro, [Packets.IntroOpcode.Guest, 'n', 'n', 'n']);
@@ -142,7 +142,7 @@ export default class Connection {
                             data.count,
                             data.ability,
                             data.abilityLevel,
-                            data.power
+                            data.power,
                         );
                     });
 
@@ -158,7 +158,7 @@ export default class Connection {
                         count,
                         ability,
                         abilityLevel,
-                        power
+                        power,
                     } = info as Equipment;
 
                     this.game.player.setEquipment(
@@ -168,7 +168,7 @@ export default class Connection {
                         count,
                         ability,
                         abilityLevel,
-                        power
+                        power,
                     );
 
                     this.menu.profile.update();
@@ -183,7 +183,7 @@ export default class Connection {
 
                     if (type === 'armour')
                         this.game.player.setSprite(
-                            this.game.getSprite(this.game.player.getSpriteName())
+                            this.game.getSprite(this.game.player.getSpriteName()),
                         );
 
                     this.menu.profile.update();
@@ -202,7 +202,7 @@ export default class Connection {
 
             this.entities.decrepit = _.reject(
                 this.entities.getAll(),
-                (entity) => _.includes(known, entity.id) || entity.id === this.game.player.id
+                (entity) => _.includes(known, entity.id) || entity.id === this.game.player.id,
             );
 
             this.entities.clean();
@@ -240,7 +240,7 @@ export default class Connection {
                     data.weapon.count,
                     data.weapon.ability,
                     data.weapon.abilityLevel,
-                    data.weapon.power
+                    data.weapon.power,
                 );
 
             if (data.attackRange) entity.attackRange = data.attackRange;
@@ -419,7 +419,7 @@ export default class Connection {
             if (entity.id !== this.game.player.id && this.game.player.getDistance(entity) < 5)
                 this.audio.play(
                     Modules.AudioTypes.SFX,
-                    `kill${Math.floor(Math.random() * 2 + 1)}` as 'kill1' | 'kill2'
+                    `kill${Math.floor(Math.random() * 2 + 1)}` as 'kill1' | 'kill2',
                 );
 
             entity.hitPoints = 0;
@@ -448,7 +448,7 @@ export default class Connection {
                         this.socket.send(Packets.Combat, [
                             Packets.CombatOpcode.Initiate,
                             attacker.id,
-                            target.id
+                            target.id,
                         ]);
 
                     break;
@@ -472,7 +472,7 @@ export default class Connection {
                             if (attacker.id === this.game.player.id && hit.damage > 0)
                                 this.audio.play(
                                     Modules.AudioTypes.SFX,
-                                    `hit${Math.floor(Math.random() * 2 + 1)}` as 'hit1' | 'hit2'
+                                    `hit${Math.floor(Math.random() * 2 + 1)}` as 'hit1' | 'hit2',
                                 );
 
                             break;
@@ -553,7 +553,7 @@ export default class Connection {
         });
 
         this.messages.onNetwork(() =>
-            this.socket.send(Packets.Network, [Packets.NetworkOpcode.Pong])
+            this.socket.send(Packets.Network, [Packets.NetworkOpcode.Pong]),
         );
 
         this.messages.onChat((info: any) => {
@@ -771,14 +771,14 @@ export default class Connection {
                             this.game.player.setExperience(
                                 info.experience,
                                 info.nextExperience,
-                                info.prevExperience
+                                info.prevExperience,
                             );
 
                         this.info.create(
                             Modules.Hits.Experience,
                             [info.amount],
                             entity.x,
-                            entity.y
+                            entity.y,
                         );
                     }
 
@@ -794,7 +794,7 @@ export default class Connection {
                             Modules.Hits.Profession,
                             [info.amount],
                             entity.x,
-                            entity.y
+                            entity.y,
                         );
 
                     break;
@@ -1069,7 +1069,7 @@ export default class Connection {
                         info.diffuse,
                         'rgba(0,0,0,0.4)',
                         true,
-                        info.objects
+                        info.objects,
                     );
 
                     break;

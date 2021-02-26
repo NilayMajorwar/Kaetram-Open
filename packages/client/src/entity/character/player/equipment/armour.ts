@@ -9,10 +9,9 @@ export default class Armour extends Equipment {
         count: number,
         ability: number,
         abilityLevel: number,
-        power: number
+        power: number,
     ) {
         super(name, string, count, ability, abilityLevel, power);
-
         this.defence = -1;
     }
 

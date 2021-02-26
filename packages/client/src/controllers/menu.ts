@@ -48,17 +48,11 @@ export default class MenuController {
 
     public resize(): void {
         this.inventory?.resize();
-
         this.profile?.resize();
-
         this.bank?.resize();
-
         this.enchant?.resize();
-
         if (this.shop?.isVisible()) this.shop.resize();
-
         this.header?.resize();
-
         this.resizeNotification();
     }
 
@@ -68,7 +62,6 @@ export default class MenuController {
      */
     public loadInventory(size: number, data: Equipment[]): void {
         this.inventory = new Inventory(this.game, size);
-
         this.inventory.load(data);
     }
 
@@ -79,14 +72,11 @@ export default class MenuController {
     public loadBank(size: number, data: Slot[]): void {
         if (!this.inventory) {
             log.error('Inventory not initialized.');
-
             return;
         }
 
         this.bank = new Bank(this.game, this.inventory.container, size);
-
         this.bank.load(data);
-
         this.loadEnchant();
     }
 
@@ -115,64 +105,42 @@ export default class MenuController {
     }
 
     private loadNotifications(): void {
-        const ok = $('#ok'),
-            cancel = $('#cancel'),
-            done = $('#done');
+        const ok = $('#ok');
+        const cancel = $('#cancel');
+        const done = $('#done');
 
         /**
          * Simple warning dialogue
          */
 
         ok.on('click', () => this.hideNotify());
-
-        /**
-         * Callbacks responsible for
-         * Confirmation dialogues
-         */
-
         cancel.on('click', () => this.hideConfirm());
-
         done.on('click', () => {
             log.info(this.confirm[0].className);
-
             this.hideConfirm();
         });
     }
 
     public stop(): void {
         this.inventory?.clear();
-
         this.actions?.clear();
-
         this.profile?.clean();
-
         this.game.input?.chatHandler.clear();
-
         this.bank?.clear();
-
         this.enchant?.clear();
-
         this.warp?.clear();
-
         this.shop?.clear();
     }
 
     public hideAll(): void {
         if (this.inventory?.isVisible()) this.inventory.hide();
-
         if (this.actions?.isVisible()) this.actions.hide();
-
         if (this.profile?.isVisible() || this.profile?.settings.isVisible()) this.profile.hide();
-
         if (this.game.input?.chatHandler?.input.is(':visible'))
             this.game.input.chatHandler.hideInput();
-
         if (this.bank?.isVisible()) this.bank.hide();
-
         if (this.enchant?.isVisible()) this.enchant.hide();
-
         if (this.warp?.isVisible()) this.warp.hide();
-
         if (this.shop?.isVisible()) this.shop.hide();
     }
 
@@ -188,7 +156,7 @@ export default class MenuController {
         if (this.isNotificationVisible())
             this.notification.css(
                 'top',
-                `${window.innerHeight - (this.notification.height() as number)}px`
+                `${window.innerHeight - (this.notification.height() as number)}px`,
             );
     }
 

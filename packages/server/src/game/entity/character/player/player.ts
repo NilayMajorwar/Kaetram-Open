@@ -1088,7 +1088,7 @@ class Player extends Character {
             pendant: this.pendant.getData(),
             ring: this.ring.getData(),
             boots: this.boots.getData(),
-            string: '', // TODO: Pass a better `string`?
+            string: '', // @todo Pass a better `string`?
         };
     }
 

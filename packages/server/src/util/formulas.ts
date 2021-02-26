@@ -93,7 +93,7 @@ export default {
         if (!attacker || !target) return;
 
         // Critical hit damage is normal damage multiplied by weapon crit multiplier
-        // TODO: Shouldn't `getMaxDamage` be used here?
+        // @todo Shouldn't `getMaxDamage` be used here?
         const damage = this.getDamage(attacker, target);
         const multiplier = attacker.weapon.abilityLevel / 10;
 
@@ -119,7 +119,7 @@ export default {
     },
 
     /**
-     * TODO: What does this function do?
+     * @todo What does this function do?
      */
     nextExp(experience: number): number {
         if (experience < 0) return -1;
@@ -129,7 +129,7 @@ export default {
     },
 
     /**
-     * TODO: What does this function do?
+     * @todo What does this function do?
      */
     prevExp(experience: number): number {
         if (experience < 0) return -1;
@@ -140,7 +140,7 @@ export default {
     },
 
     /**
-     * TODO: What does this function do?
+     * @todo What does this function do?
      */
     expToLevel(experience: number): number {
         if (experience < 0) return -1;

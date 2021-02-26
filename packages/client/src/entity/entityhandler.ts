@@ -40,15 +40,10 @@ export default class EntityHandler {
                      * fights. It basically adds another layer of movement
                      * so the entity is always following the player.
                      */
-
                     if (this.entity.type !== 'player') return;
-
                     if (attacker.type !== 'player') return;
-
                     if (!attacker.hasTarget()) return;
-
                     if (attacker.target.id !== this.entity.id) return;
-
                     if (attacker.stunned) return;
 
                     attacker.follow(this.entity);
@@ -59,7 +54,7 @@ export default class EntityHandler {
                         Packets.MovementOpcode.Entity,
                         this.entity.id,
                         this.entity.gridX,
-                        this.entity.gridY
+                        this.entity.gridY,
                     ]);
 
                 if (
@@ -74,7 +69,7 @@ export default class EntityHandler {
                 this.entities.grids.addToRenderingGrid(
                     this.entity,
                     this.entity.gridX,
-                    this.entity.gridY
+                    this.entity.gridY,
                 );
 
                 this.entities.unregisterPosition(this.entity);
@@ -94,7 +89,6 @@ export default class EntityHandler {
 
     setGame(game: Game): void {
         this.game ||= game;
-
         this.setEntities(this.game.entities);
     }
 

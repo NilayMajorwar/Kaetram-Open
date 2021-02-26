@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 import Mob from '../entity/character/mob/mob';
 import NPC from '../entity/character/npc/npc';
 import Player from '../entity/character/player/player';
@@ -78,33 +76,23 @@ export default class EntitiesController {
                  * We can go Dark Souls style and implement mimics
                  * the proper way -ahem- Kaetram V1.0
                  */
-
-                const chest = new Chest(info.id, info.string);
-
-                entity = chest;
-
+                entity = new Chest(info.id, info.string);
                 break;
             }
 
             case 'npc': {
-                const npc = new NPC(info.id, info.string);
-
-                entity = npc;
-
+                entity = new NPC(info.id, info.string);
                 break;
             }
 
             case 'item': {
-                const item = new Item(
+                entity = new Item(
                     info.id,
                     info.string,
                     info.count,
                     info.ability,
-                    info.abilityLevel
+                    info.abilityLevel,
                 );
-
-                entity = item;
-
                 break;
             }
 
@@ -120,14 +108,12 @@ export default class EntitiesController {
                 mob.movementSpeed = info.movementSpeed;
 
                 entity = mob;
-
                 break;
             }
 
             case 'projectile': {
-                const attacker = this.get(info.characterId) as Character & Entity,
-                    target = this.get(info.targetId) as Character & Entity;
-
+                const attacker = this.get(info.characterId) as Character & Entity;
+                const target = this.get(info.targetId) as Character & Entity;
                 if (!attacker || !target) return;
 
                 attacker.lookAt(target);
@@ -159,7 +145,7 @@ export default class EntitiesController {
                         this.game.socket?.send(Packets.Projectile, [
                             Packets.ProjectileOpcode.Impact,
                             info.id,
-                            target.id
+                            target.id,
                         ]);
 
                     if (info.hitType === Modules.Hits.Explosive) target.explosion = true;
@@ -168,7 +154,7 @@ export default class EntitiesController {
                         Modules.Hits.Damage,
                         [info.damage, this.isPlayer(target.id)],
                         target.x,
-                        target.y
+                        target.y,
                     );
 
                     target.triggerHealthBar();
@@ -215,21 +201,19 @@ export default class EntitiesController {
                 player.setSprite(this.getSprite(info.armour.string));
                 player.idle();
 
-                _.each(equipments, (equipment) => {
+                equipments.forEach((equipment) => {
                     player.setEquipment(
                         equipment.type,
                         equipment.name,
                         equipment.string,
                         equipment.count,
                         equipment.ability,
-                        equipment.abilityLevel
+                        equipment.abilityLevel,
                     );
                 });
 
                 player.loadHandler(this.game);
-
                 this.addEntity(player);
-
                 return;
             }
         }
@@ -266,7 +250,6 @@ export default class EntitiesController {
 
     private isPlayer(id: string): boolean {
         const { player } = this.game;
-
         return player ? player.id === id : false;
     }
 
@@ -277,20 +260,15 @@ export default class EntitiesController {
     public removeEntity(entity: Entity): void {
         this.grids.removeFromPathingGrid(entity.gridX, entity.gridY);
         this.grids.removeFromRenderingGrid(entity, entity.gridX, entity.gridY);
-
         delete this.entities[entity.id];
     }
 
     public clean(): void {
-        // ids = ids[0];
-
         if (this.decrepit.length === 0) return;
 
-        _.each(this.decrepit, (entity: Entity) => {
+        this.decrepit.forEach((entity) => {
             const { player } = this.game;
-
             if (player ? entity.id === player.id : false) return;
-
             this.removeEntity(entity);
         });
 
@@ -298,7 +276,7 @@ export default class EntitiesController {
     }
 
     public clearPlayers(exception: Player): void {
-        _.each(this.entities, (entity) => {
+        Object.values(this.entities).forEach((entity) => {
             if (entity.id !== exception.id && entity.type === 'player') this.removeEntity(entity);
         });
 
@@ -357,7 +335,6 @@ export default class EntitiesController {
 
     public unregisterPosition(entity: Entity): void {
         if (!entity) return;
-
         this.grids.removeEntity(entity);
     }
 
@@ -370,6 +347,6 @@ export default class EntitiesController {
     }
 
     public forEachEntity(callback: (entity: Entity) => void): void {
-        _.each(this.entities, (entity) => callback(entity));
+        Object.values(this.entities).forEach((entity) => callback(entity));
     }
 }

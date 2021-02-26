@@ -33,7 +33,7 @@ class Combat {
 
     lastActionThreshold: number;
 
-    // TODO: Is this field unused?
+    // @todo Is this field unused?
     cleanTimeout: NodeJS.Timeout | null;
 
     forgetCallback: () => void;

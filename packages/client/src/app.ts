@@ -28,7 +28,7 @@ export default class App {
         version: process.env.VERSION as string,
         ssl: !!process.env.SSL,
         debug: !!process.env.DEBUG,
-        worldSwitch: !!process.env.WORLD_SWITCH
+        worldSwitch: !!process.env.WORLD_SWITCH,
     };
 
     public body = $('body');
@@ -138,12 +138,12 @@ export default class App {
                     row.append($(document.createElement('td')).text(server.serverId));
                     row.append(
                         $(document.createElement('td')).text(
-                            `${server.playerCount}/${server.maxPlayers}`
-                        )
+                            `${server.playerCount}/${server.maxPlayers}`,
+                        ),
                     );
                     $('#worlds-list').append(row);
                     row.on('click', () => {
-                        // TODO: This is when a server is clicked with the local `server` having the world data.
+                        // @todo This is when a server is clicked with the local `server` having the world data.
                         // log.info(server);
                     });
 
@@ -154,7 +154,7 @@ export default class App {
                 $('#current-world-index').text(serverIndex);
                 $('#current-world-id').text(currentWorld.serverId);
                 $('#current-world-count').text(
-                    `${currentWorld.playerCount}/${currentWorld.maxPlayers}`
+                    `${currentWorld.playerCount}/${currentWorld.maxPlayers}`,
                 );
 
                 $('#worlds-switch').on('click', () => $('#worlds-popup').toggle());
@@ -217,7 +217,7 @@ export default class App {
         });
 
         $('input[type="range"]').on('input', (_e, input: HTMLInputElement) =>
-            this.updateRange($(input))
+            this.updateRange($(input)),
         );
     }
 
@@ -271,7 +271,7 @@ export default class App {
                     this.parchment.toggleClass('animate').addClass(destination);
                     this.parchmentAnimating = false;
                 },
-                isTablet() ? 0 : 1000
+                isTablet() ? 0 : 1000,
             );
         } else this.parchment.removeClass(origin).addClass(destination);
     }
@@ -320,7 +320,7 @@ export default class App {
                 const characterName: JQuery<HTMLInputElement> = $('#registerNameInput');
                 const registerPassword: JQuery<HTMLInputElement> = $('#registerPasswordInput');
                 const registerPasswordConfirmation: JQuery<HTMLInputElement> = $(
-                    '#registerPasswordConfirmationInput'
+                    '#registerPasswordConfirmationInput',
                 );
                 const email: JQuery<HTMLInputElement> = $('#registerEmailInput');
 
@@ -329,7 +329,7 @@ export default class App {
                         characterName,
                         registerPassword,
                         registerPasswordConfirmation,
-                        email
+                        email,
                     ];
 
                 if (!characterName.val()) {
@@ -361,7 +361,7 @@ export default class App {
 
     private verifyEmail(email: string): boolean {
         return /^(([^\s"(),.:;<>@[\\\]]+(\.[^\s"(),.:;<>@[\\\]]+)*)|(".+"))@((\[(?:\d{1,3}\.){3}\d{1,3}])|(([\dA-Za-z-]+\.)+[A-Za-z]{2,}))$/.test(
-            email
+            email,
         );
     }
 
@@ -374,11 +374,11 @@ export default class App {
 
         $('<span></span>', {
             class: 'status blink',
-            text: message
+            text: message,
         }).appendTo('.validation-summary');
 
         $('.status').append(
-            '<span class="loader__dot">.</span><span class="loader__dot">.</span><span class="loader__dot">.</span>'
+            '<span class="loader__dot">.</span><span class="loader__dot">.</span><span class="loader__dot">.</span>',
         );
     }
 
@@ -387,7 +387,7 @@ export default class App {
 
         $('<span></span>', {
             class: 'validation-error blink',
-            text: error
+            text: error,
         }).appendTo('.validation-summary');
 
         if (!field) return;
@@ -489,7 +489,7 @@ export default class App {
             (parseInt(obj.val() as string) - min) / (parseInt(obj.attr('max') as string) - min);
 
         obj.css({
-            backgroundImage: `-webkit-gradient(linear, left top, right top, color-stop(${val}, #4d4d4d), color-stop(${val}, #c5c5c5))`
+            backgroundImage: `-webkit-gradient(linear, left top, right top, color-stop(${val}, #4d4d4d), color-stop(${val}, #c5c5c5))`,
         });
     }
 

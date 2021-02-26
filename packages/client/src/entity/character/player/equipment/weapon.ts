@@ -11,7 +11,7 @@ export default class Weapon extends Equipment {
         count: number,
         ability: number,
         abilityLevel: number,
-        power: number
+        power: number,
     ) {
         super(name, string, count, ability, abilityLevel, power);
 

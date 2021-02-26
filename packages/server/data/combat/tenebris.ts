@@ -83,7 +83,7 @@ class Tenebris extends Combat {
     removeIllusions(): void {
         this.lastIllusion = 0;
 
-        // TODO: Cleanup?
+        // @todo Cleanup?
         const listCopy = this.illusions.slice();
         for (let i = 0; i < listCopy.length; i++) this.world.kill(listCopy[i]);
     }

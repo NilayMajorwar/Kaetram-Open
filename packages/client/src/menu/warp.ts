@@ -43,9 +43,7 @@ export default class Wrap {
 
     open(): void {
         this.game.menu.hideAll();
-
         this.toggle();
-
         this.game.socket.send(Packets.Click, ['warp', this.button.hasClass('active')]);
     }
 

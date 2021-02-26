@@ -15,7 +15,7 @@ export interface ProfessionState {
 /**
  * Base class for player professions.
  *
- * TODO: Convert to abstract class?
+ * @todo Convert to abstract class?
  */
 class Profession {
     public id: number;

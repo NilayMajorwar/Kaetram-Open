@@ -55,7 +55,7 @@ export default {
      * We are just using some incremental seeds to prevent ids/instances
      * from ending up with the same numbers/variables.
      *
-     * TODO: Can we use UUIDs or something similar here?
+     * @todo Can we use UUIDs or something similar here?
      */
 
     idSeed: 0,

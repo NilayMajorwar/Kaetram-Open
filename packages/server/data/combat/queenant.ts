@@ -161,7 +161,7 @@ class QueenAnt extends Combat {
     }
 
     getMinions() {
-        // TODO: Implement this
+        // @todo Implement this
     }
 
     isLast(): boolean {

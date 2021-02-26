@@ -110,7 +110,7 @@ class MobHandler {
             });
         });
 
-        // TODO: Implement posion on Mobs
+        // @todo Implement posion on Mobs
     }
 
     forceTalk(message: string): void {

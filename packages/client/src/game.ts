@@ -131,7 +131,7 @@ export default class Game {
         this.app.sendStatus('Initializing render engine');
 
         this.setRenderer(
-            new Renderer(background, entities, foreground, overlay, textCanvas, cursor, this)
+            new Renderer(background, entities, foreground, overlay, textCanvas, cursor, this),
         );
     }
 
@@ -275,19 +275,19 @@ export default class Game {
         x: number,
         y: number,
         ignores: Character[],
-        isObject?: boolean
+        isObject?: boolean,
     ): number[][] {
         const grid = this.entities?.grids.pathingGrid as number[][];
         let path: number[][] = [];
 
+        console.log(this.map?.isColliding(x, y));
+        console.log(this.map.isObject(x, y));
         if (this.map?.isColliding(x, y) && !this.map.isObject(x, y)) return path;
 
         if (!this.pathfinder) return path;
 
         if (ignores) _.each(ignores, (entity) => this.pathfinder?.ignoreEntity(entity));
-
         path = this.pathfinder.find(grid, character, x, y, false);
-
         if (ignores) this.pathfinder.clearIgnores();
 
         if (isObject) path.pop(); // Remove the last path index

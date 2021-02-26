@@ -167,7 +167,7 @@ export default class Messages {
             case 'toofast':
                 this.app.sendError(
                     null,
-                    'You are trying to log in too fast from the same connection.'
+                    'You are trying to log in too fast from the same connection.',
                 );
                 break;
 
@@ -180,7 +180,7 @@ export default class Messages {
             case 'timeout':
                 this.app.sendError(
                     null,
-                    'You have been disconnected for being inactive for too long.'
+                    'You have been disconnected for being inactive for too long.',
                 );
 
                 break;
@@ -188,7 +188,7 @@ export default class Messages {
             default:
                 this.app.sendError(
                     null,
-                    'An unknown error has occurred, please submit a bug report.'
+                    'An unknown error has occurred, please submit a bug report.',
                 );
                 break;
         }
@@ -200,13 +200,11 @@ export default class Messages {
 
     receiveHandshake(data: never[]): void {
         const info = data.shift();
-
         this.handshakeCallback?.(info);
     }
 
     receiveWelcome(data: never[]): void {
         const playerData = data.shift();
-
         this.welcomeCallback?.(playerData);
     }
 
@@ -215,8 +213,8 @@ export default class Messages {
     }
 
     receiveEquipment(data: never[]): void {
-        const equipType = data.shift(),
-            equipInfo = data.shift();
+        const equipType = data.shift();
+        const equipInfo = data.shift();
 
         this.equipmentCallback?.(equipType, equipInfo);
     }
@@ -230,42 +228,37 @@ export default class Messages {
     }
 
     receiveMovement(data: never[]): void {
-        const opcode = data.shift(),
-            info = data.shift();
+        const opcode = data.shift();
+        const info = data.shift();
 
         this.movementCallback?.(opcode, info);
     }
 
     receiveTeleport(data: never[]): void {
         const info = data.shift();
-
         this.teleportCallback?.(info);
     }
 
     receiveDespawn(data: never[]): void {
         const id = data.shift();
-
         this.despawnCallback?.(id);
     }
 
     receiveCombat(data: never[]): void {
-        const opcode = data.shift(),
-            info = data.shift();
-
+        const opcode = data.shift();
+        const info = data.shift();
         this.combatCallback?.(opcode, info);
     }
 
     receiveAnimation(data: never[]): void {
-        const id = data.shift(),
-            info = data.shift();
-
+        const id = data.shift();
+        const info = data.shift();
         this.animationCallback?.(id, info);
     }
 
     receiveProjectile(data: never[]): void {
-        const type = data.shift(),
-            info = data.shift();
-
+        const type = data.shift();
+        const info = data.shift();
         this.projectileCallback?.(type, info);
     }
 
@@ -275,66 +268,56 @@ export default class Messages {
 
     receivePoints(data: never[]): void {
         const pointsData = data.shift();
-
         this.pointsCallback?.(pointsData);
     }
 
     receiveNetwork(data: never[]): void {
         const opcode = data.shift();
-
         this.networkCallback?.(opcode);
     }
 
     receiveChat(data: never[]): void {
         const info = data.shift();
-
         this.chatCallback?.(info);
     }
 
     receiveCommand(data: never[]): void {
         const info = data.shift();
-
         this.commandCallback?.(info);
     }
 
     receiveInventory(data: never[]): void {
-        const opcode = data.shift(),
-            info = data.shift();
-
+        const opcode = data.shift();
+        const info = data.shift();
         this.inventoryCallback?.(opcode, info);
     }
 
     receiveBank(data: never[]): void {
-        const opcode = data.shift(),
-            info = data.shift();
-
+        const opcode = data.shift();
+        const info = data.shift();
         this.bankCallback?.(opcode, info);
     }
 
     receiveAbility(data: never[]): void {
-        const opcode = data.shift(),
-            info = data.shift();
-
+        const opcode = data.shift();
+        const info = data.shift();
         this.abilityCallback?.(opcode, info);
     }
 
     receiveQuest(data: never[]): void {
-        const opcode = data.shift(),
-            info = data.shift();
-
+        const opcode = data.shift();
+        const info = data.shift();
         this.questCallback?.(opcode, info);
     }
 
     receiveNotification(data: never[]): void {
-        const opcode = data.shift(),
-            info = data.shift();
-
+        const opcode = data.shift();
+        const info = data.shift();
         this.notificationCallback?.(opcode, info);
     }
 
     receiveBlink(data: never[]): void {
         const instance = data.shift();
-
         this.blinkCallback?.(instance);
     }
 
@@ -343,9 +326,8 @@ export default class Messages {
     }
 
     receiveExperience(data: never[]): void {
-        const opcode = data.shift(),
-            info = data.shift();
-
+        const opcode = data.shift();
+        const info = data.shift();
         this.experienceCallback?.(opcode, info);
     }
 
@@ -358,94 +340,81 @@ export default class Messages {
     }
 
     receiveNPC(data: never[]): void {
-        const opcode = data.shift(),
-            info = data.shift();
-
+        const opcode = data.shift();
+        const info = data.shift();
         this.npcCallback?.(opcode, info);
     }
 
     receiveRespawn(data: never[]): void {
-        const id = data.shift(),
-            x = data.shift(),
-            y = data.shift();
-
+        const id = data.shift();
+        const x = data.shift();
+        const y = data.shift();
         this.respawnCallback?.(id, x, y);
     }
 
     receiveEnchant(data: never[]): void {
-        const opcode = data.shift(),
-            info = data.shift();
-
+        const opcode = data.shift();
+        const info = data.shift();
         this.enchantCallback?.(opcode, info);
     }
 
     receiveGuild(data: never[]): void {
-        const opcode = data.shift(),
-            info = data.shift();
-
+        const opcode = data.shift();
+        const info = data.shift();
         this.guildCallback?.(opcode, info);
     }
 
     receivePointer(data: never[]): void {
-        const opcode = data.shift(),
-            info = data.shift();
-
+        const opcode = data.shift();
+        const info = data.shift();
         this.pointerCallback?.(opcode, info);
     }
 
     receivePVP(data: never[]): void {
-        const id = data.shift(),
-            pvp = data.shift();
-
+        const id = data.shift();
+        const pvp = data.shift();
         this.pvpCallback?.(id, pvp);
     }
 
     receiveShop(data: never[]): void {
-        const opcode = data.shift(),
-            info = data.shift();
-
+        const opcode = data.shift();
+        const info = data.shift();
         this.shopCallback?.(opcode, info);
     }
 
     receiveMinigame(data: never[]): void {
-        const opcode = data.shift(),
-            info = data.shift();
-
+        const opcode = data.shift();
+        const info = data.shift();
         this.minigameCallback?.(opcode, info);
     }
 
     receiveRegion(data: never[]): void {
-        const opcode = data.shift(),
-            info = data.shift(),
-            force = data.shift();
-
+        const opcode = data.shift();
+        const info = data.shift();
+        const force = data.shift();
         this.regionCallback?.(opcode, info, force);
     }
 
     receiveOverlay(data: never[]): void {
-        const opcode = data.shift(),
-            info = data.shift();
-
+        const opcode = data.shift();
+        const info = data.shift();
         this.overlayCallback?.(opcode, info);
     }
 
     receiveCamera(data: never[]): void {
-        const opcode = data.shift(),
-            info = data.shift();
-
+        const opcode = data.shift();
+        const info = data.shift();
         this.cameraCallback?.(opcode, info);
     }
 
     receiveBubble(data: never[]): void {
         const info = data.shift();
-
         this.bubbleCallback?.(info);
     }
 
     receiveProfession(data: never[]): void {
-        const opcode = data.shift(),
-            info = data.shift();
-
+        const opcode = data.shift();
+        const info = data.shift();
         this.professionCallback?.(opcode, info);
     }
 

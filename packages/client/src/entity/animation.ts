@@ -30,7 +30,6 @@ export default class Animation {
 
     tick(): void {
         let i = this.currentFrame.index;
-
         i = i < this.length - 1 ? i + 1 : 0;
 
         if (this.count > 0 && i === 0) {
@@ -48,6 +47,7 @@ export default class Animation {
 
         this.currentFrame.index = i;
     }
+
     endCountCallback(): void {
         throw new Error('Method not implemented.');
     }
@@ -58,7 +58,6 @@ export default class Animation {
         if (this.readyToAnimate(time)) {
             this.lastTime = time;
             this.tick();
-
             return true;
         } else return false;
     }
@@ -85,7 +84,7 @@ export default class Animation {
         this.currentFrame = {
             index: 0,
             x: 0,
-            y: this.row * this.height
+            y: this.row * this.height,
         };
     }
 }

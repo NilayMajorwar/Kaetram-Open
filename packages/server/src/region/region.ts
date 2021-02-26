@@ -225,7 +225,7 @@ class Region {
             player.send(new Messages.Region(Packets.RegionOpcode.Render, tileData, force));
     }
 
-    // TODO: Format dynamic tiles to follow same structure as `getRegionData()`
+    // @todo Format dynamic tiles to follow same structure as `getRegionData()`
     getDynamicTiles(player: Player) {
         const dynamicTiles = player.doors.getAllTiles();
         const trees = player.getSurroundingTrees();
@@ -357,7 +357,7 @@ class Region {
      * we are sending.
      */
     formatRegionData(_player: Player, _data: any) {
-        // TODO: Implement this?
+        // @todo Implement this?
     }
 
     getRegionData(region: string, player: Player, force?: boolean) {

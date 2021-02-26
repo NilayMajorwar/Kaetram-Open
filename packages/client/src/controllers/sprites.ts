@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 import spriteData from '../../data/sprites.json';
 import Animation from '../entity/animation';
 import Sprite, { SpriteData } from '../entity/sprite';
@@ -13,21 +11,14 @@ export default class SpritesController {
 
     constructor(renderer: Renderer) {
         this.renderer = renderer;
-
         this.sprites = {};
-
         this.sparksAnimation = null;
-
         this.load(spriteData);
-
         this.loadAnimations();
     }
 
     load(spriteData: SpriteData[]): void {
-        _.each(spriteData, (sprite) => {
-            this.sprites[sprite.id] = new Sprite(sprite);
-        });
-
+        spriteData.forEach((sprite) => (this.sprites[sprite.id] = new Sprite(sprite)));
         if (this.renderer.game.isDebug()) log.info('Finished loading sprite data...');
     }
 
@@ -37,8 +28,7 @@ export default class SpritesController {
     }
 
     updateSprites(): void {
-        _.each(this.sprites, (sprite) => sprite.update());
-
+        Object.values(this.sprites).forEach((sprite) => sprite.update());
         if (this.renderer.game.isDebug()) log.info('Sprites updated upon scaling.');
     }
 }

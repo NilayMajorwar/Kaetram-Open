@@ -1,5 +1,4 @@
 import $ from 'jquery';
-import _ from 'lodash';
 
 import Blob from '../renderer/bubbles/blob';
 
@@ -26,18 +25,16 @@ export default class BubbleController {
         message: string,
         duration = 5000,
         isObject?: boolean,
-        info?: Entity
+        info?: Entity,
     ): void {
         const bubble = this.bubbles[id];
         if (bubble) {
             bubble.reset(this.game.time);
-
             $(`#${id} p`).html(message);
         } else {
             const element = $(
-                `<div id="${id}" class="bubble"><p>${message}</p><div class="bubbleTip"></div></div>`
+                `<div id="${id}" class="bubble"><p>${message}</p><div class="bubbleTip"></div></div>`,
             );
-
             $(element).appendTo(this.container);
 
             this.bubbles[id] = new Blob(id, element, duration, isObject, info);
@@ -48,7 +45,6 @@ export default class BubbleController {
 
     public setTo(info: Entity): void {
         const bubble = this.get(info.id);
-
         if (!bubble || !info) return;
 
         const camera = this.game.getCamera();
@@ -66,11 +62,10 @@ export default class BubbleController {
     }
 
     public update(time: number): void {
-        _.each(this.bubbles, (bubble) => {
+        Object.values(this.bubbles).forEach((bubble) => {
             if (!bubble) return;
 
             const entity = this.game.entities?.get(bubble.id);
-
             if (entity) this.setTo(entity);
 
             if (bubble.type === 'object') this.setTo(bubble.info);
@@ -87,14 +82,12 @@ export default class BubbleController {
     }
 
     public clean(): void {
-        _.each(this.bubbles, (bubble) => bubble.destroy());
-
+        Object.values(this.bubbles).forEach((bubble) => bubble.destroy());
         this.bubbles = {};
     }
 
     public destroy(id: string): void {
         const bubble = this.get(id);
-
         if (!bubble) return;
 
         bubble.destroy();

@@ -6,9 +6,7 @@ export default class Container {
 
     constructor(size: number) {
         this.size = size;
-
         this.slots = [];
-
         for (let i = 0; i < this.size; i++) this.slots.push(new Slot(i));
     }
 
@@ -25,13 +23,12 @@ export default class Container {
             info.ability,
             info.abilityLevel,
             info.edible,
-            info.equippable
+            info.equippable,
         );
     }
 
     getEmptySlot(): number {
         for (let i = 0; i < this.slots.length; i++) if (!this.slots[i].string) return i;
-
         return -1;
     }
 

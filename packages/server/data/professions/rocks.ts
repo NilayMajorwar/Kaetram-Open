@@ -1,7 +1,7 @@
 const Rocks = {
     // The rock ids of the rock we're mining
     Rocks: {
-        BlueSteel: 264, // TODO: Make the item
+        BlueSteel: 264, // @todo Make the item
     },
 
     // Get the level requirement of the rock

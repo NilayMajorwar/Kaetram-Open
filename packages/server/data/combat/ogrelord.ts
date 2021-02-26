@@ -114,7 +114,7 @@ class OgreLord extends Combat {
     reset(): void {
         this.lastSpawn = 0;
 
-        // TODO: Can clean below code a bit?
+        // @todo Can clean below code a bit?
         const listCopy = this.minions.slice();
         for (let i = 0; i < listCopy.length; i++) this.world.kill(listCopy[i]);
 

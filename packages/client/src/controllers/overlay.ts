@@ -33,9 +33,7 @@ export default class OverlayController {
     update(entity: Entity | undefined): void {
         if (!this.validEntity(entity)) {
             this.hovering = null;
-
             if (this.isVisible()) this.hide();
-
             return;
         }
 
@@ -51,13 +49,13 @@ export default class OverlayController {
                 /* stylelint-disable */
                 width: `${
                     Math.ceil(
-                        ((entity?.hitPoints as number) / (entity as Character).maxHitPoints) * 100
+                        ((entity?.hitPoints as number) / (entity as Character).maxHitPoints) * 100,
                     ) - 10
-                }%`
+                }%`,
             });
 
             this.details.html(
-                `${entity?.hitPoints as number} / ${(entity as Character).maxHitPoints}`
+                `${entity?.hitPoints as number} / ${(entity as Character).maxHitPoints}`,
             );
         } else {
             this.health.hide();
@@ -76,7 +74,7 @@ export default class OverlayController {
                 else {
                     this.health.css(
                         'width',
-                        `${Math.ceil((hitPoints / hovering.maxHitPoints) * 100) - 10}%`
+                        `${Math.ceil((hitPoints / hovering.maxHitPoints) * 100) - 10}%`,
                     );
                     this.details.html(`${hitPoints} / ${hovering.maxHitPoints}`);
                 }

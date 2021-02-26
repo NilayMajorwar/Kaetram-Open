@@ -45,7 +45,7 @@ export default class Bank {
 
             slot.css({
                 marginRight: `${2 * this.getScale()}px`,
-                marginBottom: `${4 * this.getScale()}px`
+                marginBottom: `${4 * this.getScale()}px`,
             });
 
             const image = $(`<div id="bankImage${i}" class="bankImage"></div>`);
@@ -71,7 +71,7 @@ export default class Bank {
             slot.find(`#bankItemCount${i}`).css({
                 fontSize: `${4 * this.getScale()}px`,
                 marginTop: '0',
-                marginLeft: '0'
+                marginLeft: '0',
             });
 
             const bankListItem = $('<li></li>');
@@ -87,7 +87,7 @@ export default class Bank {
 
             iSlot.css({
                 marginRight: `${3 * this.getScale()}px`,
-                marginBottom: `${6 * this.getScale()}px`
+                marginBottom: `${6 * this.getScale()}px`,
             });
 
             const slotImage = $(`<div id="inventoryImage${j}" class="bankImage"></div>`);
@@ -95,7 +95,7 @@ export default class Bank {
             if (iItem.string)
                 slotImage.css(
                     'background-image',
-                    await this.container.getImageFormat(iItem.string)
+                    await this.container.getImageFormat(iItem.string),
                 );
 
             iSlot.on('click', (event) => this.click('inventory', event));
@@ -115,7 +115,7 @@ export default class Bank {
 
             iSlot.find(`#inventoryItemCount${j}`).css({
                 marginTop: '0',
-                marginLeft: '0'
+                marginLeft: '0',
             });
 
             const inventoryListItem = $('<li></li>');
@@ -137,13 +137,13 @@ export default class Bank {
 
             bankSlot.css({
                 marginRight: `${2 * this.getScale()}px`,
-                marginBottom: `${4 * this.getScale()}px`
+                marginBottom: `${4 * this.getScale()}px`,
             });
 
             bankSlot.find(`#bankItemCount${i}`).css({
                 fontSize: `${4 * this.getScale()}px`,
                 marginTop: '0',
-                marginLeft: '0'
+                marginLeft: '0',
             });
 
             image.css('background-image', await this.container.getImageFormat(slot.string));
@@ -156,7 +156,7 @@ export default class Bank {
 
             inventorySlot.css({
                 marginRight: `${3 * this.getScale()}px`,
-                marginBottom: `${6 * this.getScale()}px`
+                marginBottom: `${6 * this.getScale()}px`,
             });
 
             iImage.css('background-image', await this.container.getImageFormat(iSlot.string));

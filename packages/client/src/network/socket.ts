@@ -58,7 +58,7 @@ export default class Socket {
 
             this.connection = io(url, {
                 forceNew: true,
-                reconnection: false
+                reconnection: false,
             });
 
             this.connection.on('connect_error', () => {
@@ -71,7 +71,7 @@ export default class Socket {
                 if (this.game.isDebug())
                     this.game.app.sendError(
                         null,
-                        `Couldn't connect to ${this.config.ip}:${this.config.port}`
+                        `Couldn't connect to ${this.config.ip}:${this.config.port}`,
                     );
                 else this.game.app.sendError(null, 'Could not connect to the game server.');
             });
@@ -85,7 +85,7 @@ export default class Socket {
 
                 this.connection.emit('client', {
                     gVer: this.config.version,
-                    cType: 'HTML5'
+                    cType: 'HTML5',
                 });
             });
 

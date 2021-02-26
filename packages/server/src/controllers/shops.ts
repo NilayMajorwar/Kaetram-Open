@@ -60,7 +60,7 @@ class Shops {
             return;
         }
 
-        //TODO: Make it so that when you have the exact coin count,
+        //@todo Make it so that when you have the exact coin count,
         // it removes coins and replaces it with the item purchased.
 
         if (stock === 0) {
