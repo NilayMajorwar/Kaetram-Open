@@ -193,14 +193,24 @@ class Region {
         const dynamicTiles = this.getDynamicTiles(player);
 
         // Send dynamic tiles alongside the region
-        for (const tile of tileData) {
-            const index = dynamicTiles.indexes.indexOf(tile.index);
+        for (let i = 0; i < tileData.length; i++) {
+            const tile = tileData[i],
+                index = dynamicTiles.indexes.indexOf(tile.index);
 
             if (index > -1) {
-                tile.data = dynamicTiles.data[index];
-                tile.isCollision = dynamicTiles.collisions[index];
+                tileData[i].data = dynamicTiles.data[index];
+                tileData[i].isCollision = dynamicTiles.collisions[index];
             }
         }
+
+        // for (const tile of tileData) {
+        //     const index = dynamicTiles.indexes.indexOf(tile.index);
+
+        //     if (index > -1) {
+        //         tile.data = dynamicTiles.data[index];
+        //         tile.isCollision = dynamicTiles.collisions[index];
+        //     }
+        // }
 
         // Send dynamic tiles independently
         if (tileData.length === 0)
@@ -216,16 +226,17 @@ class Region {
 
                 if (data && index in data) {
                     tileData[i].isObject = data[index].isObject;
+
                     if (data[index].cursor) tileData[i].cursor = data[index].cursor;
                 }
             }
 
-        // No need to send empty data...
+        //No need to send empty data...
         if (tileData.length > 0)
             player.send(new Messages.Region(Packets.RegionOpcode.Render, tileData, force));
     }
 
-    // @todo Format dynamic tiles to follow same structure as `getRegionData()`
+    // TODO - Format dynamic tiles to follow same structure as `getRegionData()`
     getDynamicTiles(player: Player) {
         const dynamicTiles = player.doors.getAllTiles();
         const trees = player.getSurroundingTrees();
